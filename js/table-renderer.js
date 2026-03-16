@@ -134,7 +134,8 @@ function renderTable() {
   cols.push(
     ['qtyBatch', t('thBatch')], ['quyCach', t('thQuyCach')],
     ['slNhap', t('thSLNhap')], ['donGia', t('thDonGia')],
-    ['thanhTien', t('thThanhTien')], ['doiAfter', t('thDOI')], ['it', t('thIT')]
+    ['thanhTien', t('thThanhTien')], ['doiAfter', t('thDOI')], ['it', t('thIT')],
+    ['insight', t('thInsight')]
   );
 
   cols.forEach(([col, label]) => {
@@ -173,6 +174,7 @@ function renderTable() {
       <td style="text-align:right;font-weight:600">${r.hasPrice ? fmtCur(r.thanhTien) : '—'}</td>
       <td><span class="doi-cell ${dc}"><span class="doi-dot"></span>${r.doiAfter}</span></td>
       <td style="text-align:right;${r.it > itMax ? 'color:var(--danger);font-weight:600' : ''}">${r.it}</td>
+      <td>${renderInsight(r.insight)}</td>
     </tr>`;
   });
 
@@ -199,6 +201,21 @@ function renderTable() {
 
   // Init tooltips on newly rendered content
   initTooltips();
+}
+
+function renderInsight(insight) {
+  if (!insight) return '—';
+  const typeMap = {
+    danger: 'badge-red',
+    warning: 'badge-yellow',
+    info: 'badge-blue',
+    success: 'badge-green',
+    ok: 'badge-green'
+  };
+  const cls = typeMap[insight.type] || 'badge-gray';
+  const iconMap = { danger: '🚨', warning: '⚠️', info: '💡', success: '✅', ok: '✨' };
+  const icon = iconMap[insight.type] || '';
+  return `<div class="badge ${cls}" style="display:inline-flex;align-items:center;gap:4px;white-space:nowrap">${icon} ${t('insight_' + insight.text)}</div>`;
 }
 
 function goPage(p) {

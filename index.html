@@ -62,6 +62,18 @@
               <input type="number" class="input" id="cfg-doiTarget" value="45" min="1">
             </div>
             <div>
+              <label class="label" data-i18n="leadTimeLabel">Lead Time (ngày)</label><span class="tip-icon" data-tip="tipLeadTime">ⓘ</span>
+              <input type="number" class="input" id="cfg-leadTime" value="7" min="0">
+            </div>
+            <div>
+              <label class="label" data-i18n="safetyStockLabel">Safety Stock (ngày)</label><span class="tip-icon" data-tip="tipSafetyStock">ⓘ</span>
+              <input type="number" class="input" id="cfg-safetyStock" value="5" min="0">
+            </div>
+            <div>
+              <label class="label" data-i18n="budgetCapLabel">Ngân sách tối đa (VND)</label><span class="tip-icon" data-tip="tipBudgetCap">ⓘ</span>
+              <input type="number" class="input" id="cfg-budget" value="" placeholder="Ví dụ: 500000000">
+            </div>
+            <div>
               <label class="label" data-i18n="itMaxLabel">IT tối đa (ngưỡng)</label><span class="tip-icon" data-tip="tipITMax">ⓘ</span>
               <input type="number" class="input" id="cfg-itMax" value="6" min="1">
             </div>
@@ -72,6 +84,13 @@
             <div>
               <label class="label" data-i18n="periodLabel">Kỳ báo cáo (ngày)</label><span class="tip-icon" data-tip="tipPeriod">ⓘ</span>
               <input type="number" class="input" id="cfg-period" value="30" min="1">
+            </div>
+            <div>
+              <label class="label" data-i18n="goalLabel">Mục tiêu tối ưu</label><span class="tip-icon" data-tip="tipGoal">ⓘ</span>
+              <div class="goal-selector">
+                <button class="goal-btn active" id="goal-balance" onclick="setGoal('balance')" data-i18n="goalBalance">Cân bằng</button>
+                <button class="goal-btn" id="goal-mincost" onclick="setGoal('mincost')" data-i18n="goalMinCost">Tiết kiệm</button>
+              </div>
             </div>
           </div>
         </div>

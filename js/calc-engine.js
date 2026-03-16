@@ -58,6 +58,10 @@ function buildPendingMap(invData, period) {
 function runCalculation() {
   const inv = state.inv, aging = state.aging, price = state.price;
   const period = state.period, doiTarget = state.doiTarget, vat = state.vat;
+  const leadTime = state.leadTime || 7;
+  const safetyStock = state.safetyStock || 3;
+  const budgetCap = state.budgetCap || 0;
+  const goal = state.optimizationGoal || 'balance';
 
   // Build price map: SKU → { donGia, quyCach, donVi }
   const priceMap = {};
@@ -109,12 +113,26 @@ function runCalculation() {
     const adjustedDemand = demand * demandFactor;
     const dailyDemand = adjustedDemand / period;
 
-    const doiFact = dailyDemand > 0 ? stock / dailyDemand : 999;
-    const doiFactRound = Math.round(doiFact * 10) / 10;
+    // ── Smart Parameters & ROP ──
+    // Reorder Point (ROP) = (Daily Demand * Lead Time) + (Daily Demand * Safety Stock)
+    const ropDays = leadTime + safetyStock;
+    const rop = Math.round(dailyDemand * ropDays);
+    // Target Inventory (TI) for DOI Target
+    const targetInv = Math.round(dailyDemand * doiTarget);
 
-    // PO quantity based on DOI target (uses adjusted stock)
-    let suggestedBatch = Math.max(0, Math.round(dailyDemand * doiTarget - adjustedStock));
-    if (adjustedDemand === 0) suggestedBatch = 0;
+    const isBelowROP = adjustedStock < rop;
+    const isOutOfStock = adjustedStock <= 0;
+
+    // PO quantity based on goal
+    let suggestedBatch = 0;
+    if (adjustedDemand > 0) {
+      if (goal === 'balance') {
+        suggestedBatch = Math.max(0, targetInv - adjustedStock);
+      } else {
+        // Goal: Minimize Cost (Only buy if below ROP, and only up to ROP + small buffer)
+        suggestedBatch = isBelowROP ? Math.max(0, rop - adjustedStock) : 0;
+      }
+    }
 
     // Price info
     const pi = priceMap[sku] || null;
@@ -141,12 +159,16 @@ function runCalculation() {
     // 25 days check
     const outbound25 = Math.round(dailyDemand * 25);
 
+    // DOI Fact (current stock only)
+    const doiFact = dailyDemand > 0 ? stock / dailyDemand : 999;
+    const doiFactRound = Math.round(doiFact * 10) / 10;
+
     results.push({
       kho, sku, name, demand, stock,
-      pendingQty,          // NEW: Pending PO qty
-      adjustedStock,       // NEW: stock + pendingQty
-      demandFactor,        // NEW: Demand adjustment factor (default 1.0)
-      adjustedDemand,      // NEW: demand * factor
+      pendingQty,
+      adjustedStock,
+      demandFactor,
+      adjustedDemand,
       suggestedBatch, qtyBatch: suggestedBatch,
       quyCach, donVi, slNhap,
       donGia, thanhTien,
@@ -156,8 +178,18 @@ function runCalculation() {
       outbound25,
       hasPrice: !!pi,
       dailyDemand,
+      rop,
+      targetInv,
+      isBelowROP,
+      isOutOfStock,
+      insight: generateInsight(adjustedStock, rop, targetInv, dailyDemand, pendingQty)
     });
   });
+
+  // ── Handle Budget Cap for 'min_cost' goal ──
+  if (goal === 'min_cost' && budgetCap > 0) {
+    applyBudgetConstraint(results, budgetCap, vat);
+  }
 
   state.results = results;
   state.filteredResults = [...results];
@@ -186,16 +218,57 @@ function recalcRow(row) {
   row.it = avgInv > 0 ? Math.round(adjustedDemand / avgInv * 100) / 100 : 0;
 }
 
+// ── Smart Helper Functions ──────────────────────────────────────
+
+function generateInsight(stock, rop, target, daily, pending) {
+  if (daily <= 0) return { type: 'ok', text: 'noDemand' };
+  if (stock <= 0) return { type: 'danger', text: 'outOfStock' };
+  if (stock < rop) return { type: 'warning', text: 'belowROP' };
+  if (stock > target * 1.5) return { type: 'info', text: 'overStock' };
+  if (pending > 0 && stock + pending >= rop) return { type: 'success', text: 'pendingCovered' };
+  return { type: 'ok', text: 'normal' };
+}
+
+function applyBudgetConstraint(results, cap, vat) {
+  const sorted = [...results].sort((a, b) => (a.doiFact || 0) - (b.doiFact || 0));
+  let currentTotal = 0;
+  sorted.forEach(r => {
+    const cost = r.thanhTien || 0;
+    if (currentTotal + cost > cap) {
+      r.qtyBatch = 0;
+      recalcRow(r);
+    } else {
+      currentTotal += cost;
+    }
+  });
+}
+
 function applyDOI() {
+  const goal = state.optimizationGoal || 'balance';
+  const ropDays = (state.leadTime || 7) + (state.safetyStock || 3);
+
   state.results.forEach(r => {
     const factor = r.demandFactor || 1.0;
     const adjustedDemand = r.demand * factor;
     const daily = adjustedDemand / state.period;
     const adjustedStock = r.stock + (r.pendingQty || 0);
-    r.qtyBatch = Math.max(0, Math.round(daily * state.doiTarget - adjustedStock));
-    if (adjustedDemand === 0) r.qtyBatch = 0;
+
+    if (adjustedDemand === 0) {
+      r.qtyBatch = 0;
+    } else if (goal === 'balance') {
+      const targetInv = Math.round(daily * state.doiTarget);
+      r.qtyBatch = Math.max(0, targetInv - adjustedStock);
+    } else {
+      const rop = Math.round(daily * ropDays);
+      r.qtyBatch = adjustedStock < rop ? Math.max(0, rop - adjustedStock) : 0;
+    }
     recalcRow(r);
   });
+
+  if (goal === 'min_cost' && state.budgetCap > 0) {
+    applyBudgetConstraint(state.results, state.budgetCap, state.vat);
+  }
+
   state.filteredResults = filterAndSort(state.results);
   renderSummary(); renderAlerts(); renderTable();
   toast(t('toastAppliedDOI'), 'success');

@@ -9,6 +9,8 @@ const state = {
   results: [], filteredResults: [],
   filesReady: { inv: false, aging: false, price: false },
   doiTarget: 45, itMax: 6, vat: 8, period: 30,
+  leadTime: 7, safetyStock: 3, budgetCap: 0, // NEW: Smart parameters
+  optimizationGoal: 'balance',              // NEW: 'balance' or 'min_cost'
   currentPage: 1, sortCol: '', sortDir: 'asc',
   _parseData: {},
 };
@@ -25,7 +27,7 @@ function toast(msg, type = 'info') {
 
 // ── Config Management ───────────────────────────────────────────
 function loadConfig() {
-  ['doiTarget', 'itMax', 'vat', 'period'].forEach(k => {
+  ['doiTarget', 'itMax', 'vat', 'period', 'leadTime', 'safetyStock', 'budgetCap'].forEach(k => {
     const el = document.getElementById('cfg-' + k);
     if (el) {
       state[k] = parseFloat(el.value) || state[k];
@@ -34,6 +36,17 @@ function loadConfig() {
         if (state.results.length) { applyDOI(); }
       });
     }
+  });
+
+  // Handle Goal Selector
+  const goalBtns = document.querySelectorAll('.goal-btn');
+  goalBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      goalBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      state.optimizationGoal = btn.dataset.goal;
+      if (state.results.length) { applyDOI(); }
+    });
   });
 }
 
