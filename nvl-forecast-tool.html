@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" id="html-root">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,227 +8,196 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/2.2.1/chartjs-plugin-annotation.min.js"></script>
 <style>
-  /* ── CSS Reset & Variables ─────────────────────────────────────── */
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
   :root {
-    --bg:           #ffffff;
-    --bg-muted:     #f8fafc;
-    --bg-card:      #ffffff;
-    --border:       #e2e8f0;
-    --border-focus: #3b82f6;
-    --text:         #0f172a;
-    --text-muted:   #64748b;
-    --text-sm:      #94a3b8;
-    --primary:      #1d4ed8;
-    --primary-fg:   #ffffff;
-    --primary-hover:#1e40af;
-    --success:      #16a34a;
-    --success-bg:   #f0fdf4;
-    --success-bd:   #bbf7d0;
-    --warn:         #d97706;
-    --warn-bg:      #fffbeb;
-    --warn-bd:      #fde68a;
-    --danger:       #dc2626;
-    --danger-bg:    #fef2f2;
-    --danger-bd:    #fecaca;
-    --info-bg:      #eff6ff;
-    --info-bd:      #bfdbfe;
-    --radius:       0.5rem;
-    --radius-sm:    0.375rem;
-    --radius-lg:    0.75rem;
-    --shadow-sm:    0 1px 2px rgba(0,0,0,.05);
-    --shadow:       0 1px 3px rgba(0,0,0,.1), 0 1px 2px rgba(0,0,0,.06);
-    --shadow-md:    0 4px 6px rgba(0,0,0,.07), 0 2px 4px rgba(0,0,0,.05);
-    --font: 'Inter', system-ui, -apple-system, sans-serif;
+    --bg:#ffffff; --bg-muted:#f8fafc; --bg-card:#ffffff; --border:#e2e8f0;
+    --border-focus:#3b82f6; --text:#0f172a; --text-muted:#64748b; --text-sm:#94a3b8;
+    --primary:#1d4ed8; --primary-fg:#ffffff; --primary-hover:#1e40af;
+    --success:#16a34a; --success-bg:#f0fdf4; --success-bd:#bbf7d0;
+    --warn:#d97706; --warn-bg:#fffbeb; --warn-bd:#fde68a;
+    --danger:#dc2626; --danger-bg:#fef2f2; --danger-bd:#fecaca;
+    --info-bg:#eff6ff; --info-bd:#bfdbfe;
+    --radius:.5rem; --radius-sm:.375rem; --radius-lg:.75rem;
+    --shadow-sm:0 1px 2px rgba(0,0,0,.05);
+    --shadow:0 1px 3px rgba(0,0,0,.1),0 1px 2px rgba(0,0,0,.06);
+    --shadow-md:0 4px 6px rgba(0,0,0,.07),0 2px 4px rgba(0,0,0,.05);
+    --font:'Inter',system-ui,-apple-system,sans-serif;
   }
+  body { font-family:var(--font); background:var(--bg-muted); color:var(--text); min-height:100vh; font-size:14px; line-height:1.5; }
 
-  body { font-family: var(--font); background: var(--bg-muted); color: var(--text); min-height: 100vh; font-size: 14px; line-height: 1.5; }
+  /* Header */
+  .app-header { background:var(--bg-card); border-bottom:1px solid var(--border); padding:0 1rem; height:56px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:50; box-shadow:var(--shadow-sm); }
+  .app-header .logo { display:flex; align-items:center; gap:.5rem; font-weight:700; font-size:1rem; color:var(--text); }
+  .app-header .logo svg { width:28px; height:28px; }
+  .badge-version { font-size:.65rem; background:var(--info-bg); color:var(--primary); border:1px solid var(--info-bd); padding:1px 6px; border-radius:99px; font-weight:600; }
+  .header-right { display:flex; align-items:center; gap:.75rem; }
 
-  /* ── Layout ──────────────────────────────────────────────────── */
-  .app-header {
-    background: var(--bg-card); border-bottom: 1px solid var(--border);
-    padding: 0 1rem; height: 56px; display: flex; align-items: center;
-    justify-content: space-between; position: sticky; top: 0; z-index: 50;
-    box-shadow: var(--shadow-sm);
-  }
-  .app-header .logo { display: flex; align-items: center; gap: .5rem; font-weight: 700; font-size: 1rem; color: var(--text); }
-  .app-header .logo svg { width: 28px; height: 28px; }
-  .badge-version { font-size: .65rem; background: var(--info-bg); color: var(--primary); border: 1px solid var(--info-bd); padding: 1px 6px; border-radius: 99px; font-weight: 600; }
+  /* Lang switcher */
+  .lang-switcher { display:flex; gap:.25rem; }
+  .lang-btn { padding:.25rem .5rem; border:1px solid var(--border); border-radius:var(--radius-sm); font-size:.71875rem; font-weight:600; cursor:pointer; background:var(--bg-card); color:var(--text-muted); transition:all .15s; }
+  .lang-btn.active { background:var(--primary); color:white; border-color:var(--primary); }
+  .lang-btn:hover:not(.active) { background:var(--bg-muted); color:var(--text); }
 
-  .container { max-width: 1400px; margin: 0 auto; padding: 1rem; }
+  /* Layout */
+  .container { max-width:1400px; margin:0 auto; padding:1rem; }
+  .card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); box-shadow:var(--shadow-sm); }
+  .card-header { padding:.875rem 1rem; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:.5rem; }
+  .card-header h2 { font-size:.9375rem; font-weight:600; }
+  .card-header .icon { width:18px; height:18px; opacity:.7; }
+  .card-body { padding:1rem; }
 
-  /* ── Cards ───────────────────────────────────────────────────── */
-  .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); }
-  .card-header { padding: .875rem 1rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: .5rem; }
-  .card-header h2 { font-size: .9375rem; font-weight: 600; }
-  .card-header .icon { width: 18px; height: 18px; opacity: .7; }
-  .card-body { padding: 1rem; }
+  /* Buttons */
+  .btn { display:inline-flex; align-items:center; gap:.375rem; padding:.5rem .875rem; border-radius:var(--radius-sm); font-size:.8125rem; font-weight:500; cursor:pointer; border:1px solid transparent; transition:all .15s; white-space:nowrap; }
+  .btn:disabled { opacity:.5; cursor:not-allowed; }
+  .btn-primary { background:var(--primary); color:var(--primary-fg); }
+  .btn-primary:hover:not(:disabled) { background:var(--primary-hover); }
+  .btn-outline { background:transparent; color:var(--text); border-color:var(--border); }
+  .btn-outline:hover:not(:disabled) { background:var(--bg-muted); }
+  .btn-ghost { background:transparent; color:var(--text-muted); border-color:transparent; }
+  .btn-ghost:hover:not(:disabled) { background:var(--bg-muted); color:var(--text); }
+  .btn-success { background:var(--success); color:#fff; }
+  .btn-success:hover:not(:disabled) { background:#15803d; }
+  .btn-sm { padding:.3125rem .625rem; font-size:.75rem; }
 
-  /* ── Buttons ─────────────────────────────────────────────────── */
-  .btn { display: inline-flex; align-items: center; gap: .375rem; padding: .5rem .875rem; border-radius: var(--radius-sm); font-size: .8125rem; font-weight: 500; cursor: pointer; border: 1px solid transparent; transition: all .15s; white-space: nowrap; }
-  .btn:disabled { opacity: .5; cursor: not-allowed; }
-  .btn-primary { background: var(--primary); color: var(--primary-fg); }
-  .btn-primary:hover:not(:disabled) { background: var(--primary-hover); }
-  .btn-outline { background: transparent; color: var(--text); border-color: var(--border); }
-  .btn-outline:hover:not(:disabled) { background: var(--bg-muted); }
-  .btn-ghost { background: transparent; color: var(--text-muted); border-color: transparent; }
-  .btn-ghost:hover:not(:disabled) { background: var(--bg-muted); color: var(--text); }
-  .btn-success { background: var(--success); color: #fff; }
-  .btn-success:hover:not(:disabled) { background: #15803d; }
-  .btn-sm { padding: .3125rem .625rem; font-size: .75rem; }
-  .btn-icon { padding: .375rem; }
+  /* Forms */
+  .input,.select { width:100%; padding:.5rem .75rem; border:1px solid var(--border); border-radius:var(--radius-sm); font-size:.8125rem; color:var(--text); background:var(--bg-card); outline:none; transition:border-color .15s; }
+  .input:focus,.select:focus { border-color:var(--border-focus); box-shadow:0 0 0 2px rgba(59,130,246,.15); }
+  .label { font-size:.75rem; font-weight:500; color:var(--text-muted); margin-bottom:.25rem; display:block; }
 
-  /* ── Form elements ───────────────────────────────────────────── */
-  .input, .select {
-    width: 100%; padding: .5rem .75rem; border: 1px solid var(--border);
-    border-radius: var(--radius-sm); font-size: .8125rem; color: var(--text);
-    background: var(--bg-card); outline: none; transition: border-color .15s;
-  }
-  .input:focus, .select:focus { border-color: var(--border-focus); box-shadow: 0 0 0 2px rgba(59,130,246,.15); }
-  .input-sm { padding: .3125rem .5rem; font-size: .75rem; }
-  .label { font-size: .75rem; font-weight: 500; color: var(--text-muted); margin-bottom: .25rem; display: block; }
+  /* Upload */
+  .upload-zone { border:2px dashed var(--border); border-radius:var(--radius-lg); padding:1.5rem 1rem; text-align:center; cursor:pointer; transition:all .15s; background:var(--bg-muted); }
+  .upload-zone:hover,.upload-zone.drag { border-color:var(--border-focus); background:var(--info-bg); }
+  .upload-zone.done { border-color:var(--success); background:var(--success-bg); border-style:solid; }
+  .upload-zone.error { border-color:var(--danger); background:var(--danger-bg); border-style:solid; }
+  .upload-zone input[type=file] { display:none; }
+  .upload-icon { width:32px; height:32px; margin:0 auto .5rem; color:var(--text-sm); }
+  .upload-zone.done .upload-icon { color:var(--success); }
+  .upload-label { font-size:.8125rem; font-weight:500; }
+  .upload-sub { font-size:.71875rem; color:var(--text-muted); margin-top:.25rem; }
 
-  /* ── Upload zone ─────────────────────────────────────────────── */
-  .upload-zone {
-    border: 2px dashed var(--border); border-radius: var(--radius-lg);
-    padding: 1.5rem 1rem; text-align: center; cursor: pointer; transition: all .15s;
-    background: var(--bg-muted);
-  }
-  .upload-zone:hover, .upload-zone.drag { border-color: var(--border-focus); background: var(--info-bg); }
-  .upload-zone.done { border-color: var(--success); background: var(--success-bg); border-style: solid; }
-  .upload-zone.error { border-color: var(--danger); background: var(--danger-bg); border-style: solid; }
-  .upload-zone input[type=file] { display: none; }
-  .upload-icon { width: 32px; height: 32px; margin: 0 auto .5rem; color: var(--text-sm); }
-  .upload-zone.done .upload-icon { color: var(--success); }
-  .upload-label { font-size: .8125rem; font-weight: 500; }
-  .upload-sub { font-size: .71875rem; color: var(--text-muted); margin-top: .25rem; }
+  /* Badges */
+  .badge { display:inline-flex; align-items:center; gap:.25rem; padding:.1875rem .5rem; border-radius:99px; font-size:.6875rem; font-weight:600; }
+  .badge-red    { background:var(--danger-bg);  color:var(--danger);  border:1px solid var(--danger-bd); }
+  .badge-yellow { background:var(--warn-bg);    color:var(--warn);    border:1px solid var(--warn-bd); }
+  .badge-green  { background:var(--success-bg); color:var(--success); border:1px solid var(--success-bd); }
+  .badge-blue   { background:var(--info-bg);    color:var(--primary); border:1px solid var(--info-bd); }
+  .badge-gray   { background:var(--bg-muted);   color:var(--text-muted); border:1px solid var(--border); }
 
-  /* ── Badges / Tags ───────────────────────────────────────────── */
-  .badge { display: inline-flex; align-items: center; gap: .25rem; padding: .1875rem .5rem; border-radius: 99px; font-size: .6875rem; font-weight: 600; }
-  .badge-red    { background: var(--danger-bg);  color: var(--danger);  border: 1px solid var(--danger-bd); }
-  .badge-yellow { background: var(--warn-bg);    color: var(--warn);    border: 1px solid var(--warn-bd); }
-  .badge-green  { background: var(--success-bg); color: var(--success); border: 1px solid var(--success-bd); }
-  .badge-blue   { background: var(--info-bg);    color: var(--primary); border: 1px solid var(--info-bd); }
-  .badge-gray   { background: var(--bg-muted);   color: var(--text-muted); border: 1px solid var(--border); }
+  /* Alerts */
+  .alert { padding:.75rem 1rem; border-radius:var(--radius-sm); font-size:.8125rem; display:flex; gap:.5rem; align-items:flex-start; margin-bottom:.5rem; }
+  .alert-info    { background:var(--info-bg);    border:1px solid var(--info-bd);    color:#1e40af; }
+  .alert-success { background:var(--success-bg); border:1px solid var(--success-bd); color:#15803d; }
+  .alert-warn    { background:var(--warn-bg);    border:1px solid var(--warn-bd);    color:#92400e; }
+  .alert-danger  { background:var(--danger-bg);  border:1px solid var(--danger-bd);  color:#991b1b; }
 
-  /* ── Alert ───────────────────────────────────────────────────── */
-  .alert { padding: .75rem 1rem; border-radius: var(--radius-sm); font-size: .8125rem; display: flex; gap: .5rem; align-items: flex-start; }
-  .alert-info    { background: var(--info-bg);    border: 1px solid var(--info-bd);    color: #1e40af; }
-  .alert-success { background: var(--success-bg); border: 1px solid var(--success-bd); color: #15803d; }
-  .alert-warn    { background: var(--warn-bg);    border: 1px solid var(--warn-bd);    color: #92400e; }
-  .alert-danger  { background: var(--danger-bg);  border: 1px solid var(--danger-bd);  color: #991b1b; }
+  /* Stats */
+  .stats-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:.625rem; }
+  @media (min-width:640px) { .stats-grid { grid-template-columns:repeat(4,1fr); } }
+  .stat-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:.75rem; }
+  .stat-label { font-size:.6875rem; color:var(--text-muted); font-weight:500; text-transform:uppercase; letter-spacing:.025em; }
+  .stat-value { font-size:1.375rem; font-weight:700; margin-top:.125rem; }
+  .stat-sub { font-size:.6875rem; color:var(--text-muted); margin-top:.125rem; }
+  .stat-danger .stat-value { color:var(--danger); }
+  .stat-warn   .stat-value { color:var(--warn); }
+  .stat-success .stat-value { color:var(--success); }
 
-  /* ── Summary stats ───────────────────────────────────────────── */
-  .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: .625rem; }
-  @media (min-width: 640px) { .stats-grid { grid-template-columns: repeat(4, 1fr); } }
-  .stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: .75rem; }
-  .stat-label { font-size: .6875rem; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: .025em; }
-  .stat-value { font-size: 1.375rem; font-weight: 700; margin-top: .125rem; }
-  .stat-sub { font-size: .6875rem; color: var(--text-muted); margin-top: .125rem; }
-  .stat-danger .stat-value { color: var(--danger); }
-  .stat-warn   .stat-value { color: var(--warn); }
-  .stat-success .stat-value { color: var(--success); }
+  /* Table */
+  .table-wrapper { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  .table { width:100%; border-collapse:collapse; font-size:.8125rem; min-width:900px; }
+  .table th { padding:.5rem .75rem; text-align:left; font-size:.6875rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:.025em; border-bottom:1px solid var(--border); background:var(--bg-muted); white-space:nowrap; cursor:pointer; user-select:none; }
+  .table th:hover { background:var(--border); }
+  .table th.sorted { color:var(--primary); }
+  .table td { padding:.5rem .75rem; border-bottom:1px solid var(--border); vertical-align:middle; }
+  .table tr:last-child td { border-bottom:none; }
+  .table tr:hover td { background:var(--bg-muted); }
+  .table tr.danger td { background:#fff5f5; }
+  .table tr.warn td { background:#fffdf5; }
 
-  /* ── Table ───────────────────────────────────────────────────── */
-  .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  .table { width: 100%; border-collapse: collapse; font-size: .8125rem; min-width: 900px; }
-  .table th { padding: .5rem .75rem; text-align: left; font-size: .6875rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .025em; border-bottom: 1px solid var(--border); background: var(--bg-muted); white-space: nowrap; cursor: pointer; user-select: none; }
-  .table th:hover { background: var(--border); }
-  .table th.sorted { color: var(--primary); }
-  .table td { padding: .5rem .75rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
-  .table tr:last-child td { border-bottom: none; }
-  .table tr:hover td { background: var(--bg-muted); }
-  .table tr.danger td { background: #fff5f5; }
-  .table tr.warn td { background: #fffdf5; }
+  /* DOI */
+  .doi-cell { display:inline-flex; align-items:center; gap:.375rem; font-weight:600; }
+  .doi-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+  .doi-red    { color:var(--danger); } .doi-red .doi-dot    { background:var(--danger); }
+  .doi-yellow { color:var(--warn);   } .doi-yellow .doi-dot { background:var(--warn); }
+  .doi-green  { color:var(--success);} .doi-green .doi-dot  { background:var(--success); }
+  .doi-blue   { color:#2563eb;       } .doi-blue .doi-dot   { background:#2563eb; }
 
-  /* DOI cell */
-  .doi-cell { display: inline-flex; align-items: center; gap: .375rem; font-weight: 600; }
-  .doi-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-  .doi-red    { color: var(--danger); } .doi-red .doi-dot    { background: var(--danger); }
-  .doi-yellow { color: var(--warn);   } .doi-yellow .doi-dot { background: var(--warn); }
-  .doi-green  { color: var(--success);} .doi-green .doi-dot  { background: var(--success); }
-  .doi-blue   { color: #2563eb;       } .doi-blue .doi-dot   { background: #2563eb; }
+  .qty-input { width:72px; padding:.25rem .375rem; border:1px solid var(--border); border-radius:var(--radius-sm); font-size:.8125rem; text-align:right; font-weight:500; }
+  .qty-input:focus { border-color:var(--border-focus); outline:none; box-shadow:0 0 0 2px rgba(59,130,246,.15); }
+  .qty-changed { border-color:var(--warn); background:var(--warn-bg); }
 
-  /* editable qty */
-  .qty-input { width: 72px; padding: .25rem .375rem; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: .8125rem; text-align: right; font-weight: 500; }
-  .qty-input:focus { border-color: var(--border-focus); outline: none; box-shadow: 0 0 0 2px rgba(59,130,246,.15); }
-  .qty-changed { border-color: var(--warn); background: var(--warn-bg); }
+  /* Tabs */
+  .tabs { display:flex; gap:0; border-bottom:1px solid var(--border); overflow-x:auto; }
+  .tab { padding:.625rem 1rem; font-size:.8125rem; font-weight:500; color:var(--text-muted); cursor:pointer; border-bottom:2px solid transparent; transition:all .15s; white-space:nowrap; }
+  .tab:hover { color:var(--text); }
+  .tab.active { color:var(--primary); border-bottom-color:var(--primary); }
 
-  /* ── Tabs ────────────────────────────────────────────────────── */
-  .tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); }
-  .tab { padding: .625rem 1rem; font-size: .8125rem; font-weight: 500; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; transition: all .15s; white-space: nowrap; }
-  .tab:hover { color: var(--text); }
-  .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+  /* Toolbar */
+  .toolbar { display:flex; flex-wrap:wrap; align-items:center; gap:.5rem; padding:.75rem 1rem; border-bottom:1px solid var(--border); }
+  .toolbar-left  { display:flex; flex-wrap:wrap; gap:.5rem; align-items:center; flex:1; min-width:0; }
+  .toolbar-right { display:flex; flex-wrap:wrap; gap:.5rem; align-items:center; }
 
-  /* ── Toolbar ─────────────────────────────────────────────────── */
-  .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; padding: .75rem 1rem; border-bottom: 1px solid var(--border); }
-  .toolbar-left  { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; flex: 1; min-width: 0; }
-  .toolbar-right { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+  /* Chart */
+  .chart-container { position:relative; height:320px; }
+  @media (min-width:768px) { .chart-container { height:420px; } }
 
-  /* ── Chart ───────────────────────────────────────────────────── */
-  .chart-container { position: relative; height: 320px; }
-  @media (min-width: 768px) { .chart-container { height: 420px; } }
+  /* Grid */
+  .grid-2 { display:grid; grid-template-columns:1fr; gap:.75rem; }
+  @media (min-width:768px) { .grid-2 { grid-template-columns:repeat(2,1fr); } }
+  .grid-3 { display:grid; grid-template-columns:1fr; gap:.75rem; }
+  @media (min-width:768px) { .grid-3 { grid-template-columns:repeat(3,1fr); } }
+  .grid-4 { display:grid; grid-template-columns:repeat(2,1fr); gap:.625rem; }
+  @media (min-width:768px) { .grid-4 { grid-template-columns:repeat(4,1fr); } }
 
-  /* ── Grid helpers ────────────────────────────────────────────── */
-  .grid-2 { display: grid; grid-template-columns: 1fr; gap: .75rem; }
-  @media (min-width: 768px) { .grid-2 { grid-template-columns: repeat(2, 1fr); } }
-  .grid-3 { display: grid; grid-template-columns: 1fr; gap: .75rem; }
-  @media (min-width: 768px) { .grid-3 { grid-template-columns: repeat(3, 1fr); } }
+  /* Steps */
+  .steps { display:flex; gap:0; overflow-x:auto; padding-bottom:.5rem; }
+  .step { display:flex; align-items:center; gap:.375rem; font-size:.75rem; font-weight:500; color:var(--text-sm); white-space:nowrap; }
+  .step.active { color:var(--primary); }
+  .step.done   { color:var(--success); }
+  .step-num { width:22px; height:22px; border-radius:50%; border:1.5px solid currentColor; display:flex; align-items:center; justify-content:center; font-size:.6875rem; font-weight:700; flex-shrink:0; }
+  .step.done .step-num { background:var(--success); color:white; border-color:var(--success); }
+  .step-sep { width:24px; height:1px; background:var(--border); flex-shrink:0; }
 
-  /* ── Step indicator ──────────────────────────────────────────── */
-  .steps { display: flex; gap: 0; overflow-x: auto; padding-bottom: .5rem; }
-  .step { display: flex; align-items: center; gap: .375rem; font-size: .75rem; font-weight: 500; color: var(--text-sm); white-space: nowrap; }
-  .step.active { color: var(--primary); }
-  .step.done   { color: var(--success); }
-  .step-num { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid currentColor; display: flex; align-items: center; justify-content: center; font-size: .6875rem; font-weight: 700; flex-shrink: 0; }
-  .step.done .step-num { background: var(--success); color: white; border-color: var(--success); }
-  .step-sep { width: 24px; height: 1px; background: var(--border); flex-shrink: 0; }
+  /* Pagination */
+  .pagination { display:flex; align-items:center; gap:.375rem; justify-content:center; padding:.75rem 1rem; }
+  .page-btn { width:30px; height:30px; display:flex; align-items:center; justify-content:center; border:1px solid var(--border); border-radius:var(--radius-sm); font-size:.75rem; cursor:pointer; background:var(--bg-card); transition:all .1s; }
+  .page-btn:hover { background:var(--bg-muted); }
+  .page-btn.active { background:var(--primary); color:white; border-color:var(--primary); }
 
-  /* ── Pagination ──────────────────────────────────────────────── */
-  .pagination { display: flex; align-items: center; gap: .375rem; justify-content: center; padding: .75rem 1rem; }
-  .page-btn { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: .75rem; cursor: pointer; background: var(--bg-card); transition: all .1s; }
-  .page-btn:hover { background: var(--bg-muted); }
-  .page-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
-  .page-info { font-size: .75rem; color: var(--text-muted); }
+  /* Slider */
+  .slider { -webkit-appearance:none; width:100%; height:4px; border-radius:4px; background:var(--border); outline:none; }
+  .slider::-webkit-slider-thumb { -webkit-appearance:none; width:16px; height:16px; border-radius:50%; background:var(--primary); cursor:pointer; box-shadow:0 0 0 2px white,0 0 0 3px var(--primary); }
 
-  /* ── DOI slider ──────────────────────────────────────────────── */
-  .slider { -webkit-appearance: none; width: 100%; height: 4px; border-radius: 4px; background: var(--border); outline: none; }
-  .slider::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--primary); cursor: pointer; box-shadow: 0 0 0 2px white, 0 0 0 3px var(--primary); }
+  /* Toast */
+  #toast-container { position:fixed; bottom:1rem; right:1rem; z-index:100; display:flex; flex-direction:column; gap:.5rem; }
+  .toast { padding:.625rem 1rem; border-radius:var(--radius); font-size:.8125rem; font-weight:500; color:white; max-width:320px; box-shadow:var(--shadow-md); animation:slideIn .2s ease; }
+  .toast-success { background:#15803d; }
+  .toast-error   { background:#dc2626; }
+  .toast-info    { background:#1d4ed8; }
+  @keyframes slideIn { from { transform:translateX(100%); opacity:0; } to { transform:translateX(0); opacity:1; } }
 
-  /* ── Toast ───────────────────────────────────────────────────── */
-  #toast-container { position: fixed; bottom: 1rem; right: 1rem; z-index: 100; display: flex; flex-direction: column; gap: .5rem; }
-  .toast { padding: .625rem 1rem; border-radius: var(--radius); font-size: .8125rem; font-weight: 500; color: white; max-width: 300px; box-shadow: var(--shadow-md); animation: slideIn .2s ease; }
-  .toast-success { background: #15803d; }
-  .toast-error   { background: #dc2626; }
-  .toast-info    { background: #1d4ed8; }
-  @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+  /* Helpers */
+  .section { margin-bottom:1rem; }
+  .section:last-child { margin-bottom:0; }
+  .mt-1{margin-top:.25rem;} .mt-2{margin-top:.5rem;} .mt-3{margin-top:.75rem;} .mt-4{margin-top:1rem;}
+  .mb-1{margin-bottom:.25rem;} .mb-2{margin-bottom:.5rem;}
+  .flex{display:flex;} .items-center{align-items:center;} .justify-between{justify-content:space-between;}
+  .gap-1{gap:.25rem;} .gap-2{gap:.5rem;}
+  .text-sm{font-size:.75rem;} .text-xs{font-size:.6875rem;} .text-muted{color:var(--text-muted);}
+  .font-mono{font-family:'Courier New',monospace;}
+  .hidden{display:none!important;} .w-full{width:100%;}
+  .flex-wrap{flex-wrap:wrap;}
 
-  /* ── Section spacing ─────────────────────────────────────────── */
-  .section { margin-bottom: 1rem; }
-  .section:last-child { margin-bottom: 0; }
-  .mt-1 { margin-top: .25rem; } .mt-2 { margin-top: .5rem; } .mt-3 { margin-top: .75rem; } .mt-4 { margin-top: 1rem; }
-  .mb-1 { margin-bottom: .25rem; } .mb-2 { margin-bottom: .5rem; }
-  .flex { display: flex; } .items-center { align-items: center; } .justify-between { justify-content: space-between; }
-  .gap-1 { gap: .25rem; } .gap-2 { gap: .5rem; }
-  .text-sm { font-size: .75rem; } .text-xs { font-size: .6875rem; } .text-muted { color: var(--text-muted); }
-  .font-mono { font-family: 'Courier New', monospace; }
-  .hidden { display: none !important; }
-  .w-full { width: 100%; }
-
-  /* ── Print styles ────────────────────────────────────────────── */
   @media print {
-    .no-print { display: none !important; }
-    .app-header { position: static; }
-    body { background: white; }
-    .card { box-shadow: none; border: 1px solid #ccc; }
-    .table th, .table td { font-size: 10px; padding: 4px 6px; }
+    .no-print{display:none!important;}
+    .app-header{position:static;}
+    body{background:white;}
+    .card{box-shadow:none;border:1px solid #ccc;}
+    .table th,.table td{font-size:10px;padding:4px 6px;}
   }
 </style>
 </head>
 <body>
 
-<!-- ── Header ─────────────────────────────────────────────────────── -->
 <header class="app-header no-print">
   <div class="logo">
     <svg viewBox="0 0 28 28" fill="none">
@@ -236,48 +205,58 @@
       <path d="M6 8h16v2H6V8zm0 5h10v2H6v-2zm0 5h13v2H6v-2z" fill="white"/>
       <circle cx="20" cy="18" r="4" fill="#f59e0b"/>
     </svg>
-    Boxme NVL Forecast
+    <span data-i18n="appTitle">Boxme NVL Forecast</span>
   </div>
-  <span class="badge-version">v1.0</span>
+  <div class="header-right">
+    <div class="lang-switcher">
+      <button class="lang-btn active" id="lang-vi" onclick="setLang('vi')">🇻🇳 VI</button>
+      <button class="lang-btn" id="lang-en" onclick="setLang('en')">🇬🇧 EN</button>
+      <button class="lang-btn" id="lang-th" onclick="setLang('th')">🇹🇭 TH</button>
+    </div>
+    <span class="badge-version">v1.1</span>
+  </div>
 </header>
 
 <div class="container" id="app">
 
-  <!-- ── STEP INDICATOR ──────────────────────────────────────────── -->
+  <!-- Steps -->
   <div class="steps section no-print" id="step-indicator">
-    <div class="step" id="s1"><span class="step-num">1</span> Import Files</div>
+    <div class="step" id="s1"><span class="step-num">1</span> <span data-i18n="step1">Import Files</span></div>
     <div class="step-sep"></div>
-    <div class="step" id="s2"><span class="step-num">2</span> Xem kết quả</div>
+    <div class="step" id="s2"><span class="step-num">2</span> <span data-i18n="step2">Xem kết quả</span></div>
     <div class="step-sep"></div>
-    <div class="step" id="s3"><span class="step-num">3</span> Xuất PO</div>
+    <div class="step" id="s3"><span class="step-num">3</span> <span data-i18n="step3">Xuất PO</span></div>
   </div>
 
-  <!-- ══════════════════════════════════════════════════════════════ -->
-  <!-- PHASE 1: IMPORT                                                -->
-  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- PHASE 1: IMPORT -->
   <div id="phase-import">
 
-    <!-- Config row -->
+    <!-- Config -->
     <div class="card section">
       <div class="card-header">
         <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
-        <h2>Cấu hình</h2>
+        <h2 data-i18n="configTitle">Cấu hình</h2>
       </div>
       <div class="card-body">
-        <div class="grid-3">
+        <div class="grid-4">
           <div>
-            <label class="label">DOI Target (ngày)</label>
+            <label class="label" data-i18n="doiTargetLabel">DOI Target (ngày)</label>
             <div class="flex gap-2 items-center">
               <input type="range" class="slider" id="doi-target" min="15" max="60" value="30" style="flex:1">
               <span id="doi-target-val" style="font-weight:700;min-width:32px;color:var(--primary)">30</span>
             </div>
           </div>
           <div>
-            <label class="label">VAT mặc định (%)</label>
+            <label class="label" data-i18n="itMaxLabel">IT tối đa (ngưỡng)</label>
+            <input type="number" class="input" id="it-max" value="1.25" min="0.5" max="5" step="0.05"
+              title="Inventory Turnover tối đa cho phép (≤ 1.25 = ≤ 37.5 ngày)">
+          </div>
+          <div>
+            <label class="label" data-i18n="vatLabel">VAT mặc định (%)</label>
             <input type="number" class="input" id="vat-rate" value="8" min="0" max="20" step="1">
           </div>
           <div>
-            <label class="label">Kỳ báo cáo (ngày)</label>
+            <label class="label" data-i18n="periodLabel">Kỳ báo cáo (ngày)</label>
             <input type="number" class="input" id="period-days" value="30" min="1" max="90">
           </div>
         </div>
@@ -286,11 +265,10 @@
 
     <!-- Upload cards -->
     <div class="grid-3 section">
-      <!-- Inventory 30 days -->
       <div class="card">
         <div class="card-header">
           <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 17H7A5 5 0 017 7h2m6 0h2a5 5 0 010 10h-2m-7-5h8"/></svg>
-          <h2>Inventory 30 days</h2>
+          <h2 data-i18n="invTitle">Inventory 30 days</h2>
         </div>
         <div class="card-body">
           <div class="upload-zone" id="zone-inv" onclick="document.getElementById('file-inv').click()" ondragover="dragOver(event,'zone-inv')" ondragleave="dragLeave('zone-inv')" ondrop="drop(event,'inv')">
@@ -300,17 +278,14 @@
             <div class="upload-sub">.xlsx, .xls, .csv</div>
           </div>
           <div id="inv-status" class="mt-2 text-xs text-muted"></div>
-          <div class="mt-2 text-xs" style="color:var(--text-muted)">
-            Cột bắt buộc: <span class="font-mono">SKU, Outbound, Close, Warehouse</span>
-          </div>
+          <div class="mt-2 text-xs text-muted" data-i18n="invHint">Cột: SKU, Outbound, Close, Warehouse</div>
         </div>
       </div>
 
-      <!-- Aging Report -->
       <div class="card">
         <div class="card-header">
           <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-          <h2>Aging Report</h2>
+          <h2 data-i18n="agingTitle">Aging Report</h2>
         </div>
         <div class="card-body">
           <div class="upload-zone" id="zone-aging" onclick="document.getElementById('file-aging').click()" ondragover="dragOver(event,'zone-aging')" ondragleave="dragLeave('zone-aging')" ondrop="drop(event,'aging')">
@@ -320,17 +295,14 @@
             <div class="upload-sub">.xlsx, .xls, .csv</div>
           </div>
           <div id="aging-status" class="mt-2 text-xs text-muted"></div>
-          <div class="mt-2 text-xs" style="color:var(--text-muted)">
-            Cột bắt buộc: <span class="font-mono">Kho, Seller SKU, &lt;15 days, …</span>
-          </div>
+          <div class="mt-2 text-xs text-muted" data-i18n="agingHint">Cột: Kho, Seller SKU, &lt;15 days…</div>
         </div>
       </div>
 
-      <!-- Bang gia -->
       <div class="card">
         <div class="card-header">
           <svg class="icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-          <h2>Bảng giá (Bang gia)</h2>
+          <h2 data-i18n="priceTitle">Bảng giá</h2>
         </div>
         <div class="card-body">
           <div class="upload-zone" id="zone-price" onclick="document.getElementById('file-price').click()" ondragover="dragOver(event,'zone-price')" ondragleave="dragLeave('zone-price')" ondrop="drop(event,'price')">
@@ -340,73 +312,49 @@
             <div class="upload-sub">.xlsx, .xls, .csv</div>
           </div>
           <div id="price-status" class="mt-2 text-xs text-muted"></div>
-          <div class="mt-2 text-xs" style="color:var(--text-muted)">
-            Cột bắt buộc: <span class="font-mono">SKU, Đơn giá (-VAT), Số lượng / pack</span>
-          </div>
+          <div class="mt-2 text-xs text-muted" data-i18n="priceHint">Cột: SKU, Đơn giá (-VAT), Số lượng/pack</div>
         </div>
       </div>
     </div>
 
-    <!-- Demo data button & Calculate -->
-    <div class="flex gap-2 items-center section">
+    <!-- Actions -->
+    <div class="flex gap-2 items-center flex-wrap section">
       <button class="btn btn-primary" id="btn-calculate" onclick="calculate()" disabled>
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 7H6a2 2 0 00-2 2v9a2 2 0 002 2h9a2 2 0 002-2v-3M16 5l3 3-7 7-3-1-1-3 8-8z"/></svg>
-        Tính toán
+        <span data-i18n="btnCalculate">Tính toán</span>
       </button>
       <button class="btn btn-outline" onclick="loadDemo()">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1M8 12l4 4 4-4M12 8v8"/></svg>
-        Tải dữ liệu demo
+        <span data-i18n="btnDemo">Tải dữ liệu demo</span>
       </button>
-      <span class="text-xs text-muted" id="import-hint">Upload đủ 3 file để tính toán</span>
+      <span class="text-xs text-muted" id="import-hint" data-i18n="importHint">Upload đủ 3 file để tính toán</span>
     </div>
 
   </div><!-- /phase-import -->
 
-  <!-- ══════════════════════════════════════════════════════════════ -->
-  <!-- PHASE 2: RESULTS                                               -->
-  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- PHASE 2: RESULTS -->
   <div id="phase-results" class="hidden">
 
-    <!-- Summary stats -->
     <div class="stats-grid section" id="summary-stats"></div>
+    <div id="alerts-section"></div>
 
-    <!-- Alerts -->
-    <div id="alerts-section" class="section"></div>
-
-    <!-- Tabs -->
     <div class="card section">
       <div class="tabs no-print" id="tabs">
-        <div class="tab active" onclick="switchTab('table')" id="tab-table">📋 Bảng PO</div>
-        <div class="tab" onclick="switchTab('chart')" id="tab-chart">📊 DOI Chart</div>
+        <div class="tab active" onclick="switchTab('table')" id="tab-table"><span data-i18n="tabTable">📋 Bảng PO</span></div>
+        <div class="tab" onclick="switchTab('chart')" id="tab-chart"><span data-i18n="tabChart">📊 DOI Chart</span></div>
       </div>
 
       <!-- TABLE TAB -->
       <div id="view-table">
         <div class="toolbar no-print">
           <div class="toolbar-left">
-            <select class="select" style="width:auto" id="filter-kho" onchange="applyFilters()">
-              <option value="">Tất cả kho</option>
-              <option>VSIP</option>
-              <option>Lê Minh Xuân</option>
-              <option>Bình Tân</option>
-              <option>Tân Tạo</option>
-              <option>Stock</option>
-            </select>
-            <select class="select" style="width:auto" id="filter-doi" onchange="applyFilters()">
-              <option value="">Tất cả DOI</option>
-              <option value="danger">🔴 Nguy hiểm &lt;20</option>
-              <option value="warn">🟡 Cảnh báo 20-29</option>
-              <option value="ok">🟢 Ổn định 30+</option>
-            </select>
-            <select class="select" style="width:auto" id="filter-order" onchange="applyFilters()">
-              <option value="">Tất cả</option>
-              <option value="order">Chỉ cần đặt hàng</option>
-              <option value="noorder">Không cần đặt</option>
-            </select>
+            <select class="select" style="width:auto" id="filter-kho" onchange="applyFilters()"></select>
+            <select class="select" style="width:auto" id="filter-doi" onchange="applyFilters()"></select>
+            <select class="select" style="width:auto" id="filter-order" onchange="applyFilters()"></select>
           </div>
           <div class="toolbar-right">
-            <button class="btn btn-outline btn-sm" onclick="resetAllQty()">↩ Reset Qty</button>
-            <button class="btn btn-outline btn-sm" onclick="applyTargetDOI()">⚡ Apply DOI Target</button>
+            <button class="btn btn-outline btn-sm" onclick="resetAllQty()"><span data-i18n="btnReset">↩ Reset Qty</span></button>
+            <button class="btn btn-outline btn-sm" onclick="applyTargetDOI()"><span data-i18n="btnApplyDOI">⚡ Apply DOI Target</span></button>
           </div>
         </div>
 
@@ -414,18 +362,18 @@
           <table class="table" id="po-table">
             <thead>
               <tr>
-                <th onclick="sortBy('kho')">Kho <span id="sort-kho"></span></th>
+                <th onclick="sortBy('kho')"><span data-i18n="thKho">Kho</span> <span id="sort-kho"></span></th>
                 <th onclick="sortBy('sku')">SKU <span id="sort-sku"></span></th>
-                <th onclick="sortBy('name')">Tên SP</th>
-                <th onclick="sortBy('demand')" class="text-right">Demand 30d</th>
-                <th onclick="sortBy('inventory')">Tồn kho</th>
-                <th style="min-width:90px">Batch đặt</th>
-                <th>Quy cách</th>
-                <th onclick="sortBy('slnhap')">SL nhập</th>
-                <th onclick="sortBy('dongia')">Đơn giá</th>
-                <th onclick="sortBy('thanhtien')">Thành tiền+VAT</th>
-                <th onclick="sortBy('doi')" class="sorted">DOI <span id="sort-doi">↑</span></th>
-                <th onclick="sortBy('it')">IT</th>
+                <th onclick="sortBy('name')"><span data-i18n="thName">Tên SP</span></th>
+                <th onclick="sortBy('demand')" style="text-align:right"><span data-i18n="thDemand">Demand 30d</span></th>
+                <th onclick="sortBy('invClose')" style="text-align:right"><span data-i18n="thInventory">Tồn kho</span></th>
+                <th style="min-width:90px"><span data-i18n="thBatch">Batch đặt</span></th>
+                <th><span data-i18n="thQuyCach">Quy cách</span></th>
+                <th onclick="sortBy('slNhap')" style="text-align:right"><span data-i18n="thSLNhap">SL nhập</span></th>
+                <th onclick="sortBy('donGia')" style="text-align:right"><span data-i18n="thDonGia">Đơn giá</span></th>
+                <th onclick="sortBy('thanhTienVAT')" style="text-align:right"><span data-i18n="thThanhTien">Thành tiền+VAT</span></th>
+                <th onclick="sortBy('doi')" class="sorted"><span data-i18n="thDOI">DOI</span> <span id="sort-doi">↑</span></th>
+                <th onclick="sortBy('it')"><span data-i18n="thIT">IT</span></th>
               </tr>
             </thead>
             <tbody id="table-body"></tbody>
@@ -442,60 +390,245 @@
       <div id="view-chart" class="hidden">
         <div class="toolbar no-print">
           <div class="toolbar-left">
-            <select class="select" style="width:auto" id="chart-kho" onchange="renderChart()">
-              <option value="">Tất cả kho</option>
-              <option>VSIP</option>
-              <option>Lê Minh Xuân</option>
-              <option>Bình Tân</option>
-              <option>Tân Tạo</option>
-              <option>Stock</option>
-            </select>
-            <label class="label" style="margin:0">Hiện top</label>
+            <select class="select" style="width:auto" id="chart-kho" onchange="renderChart()"></select>
+            <label class="label" style="margin:0" data-i18n="chartShowTop">Hiện top</label>
             <select class="select" style="width:auto" id="chart-top" onchange="renderChart()">
               <option value="20">20 SKU</option>
               <option value="40">40 SKU</option>
-              <option value="999">Tất cả</option>
+              <option value="999" data-i18n-opt="chartAllSKU">Tất cả</option>
             </select>
           </div>
         </div>
         <div class="card-body">
-          <div class="chart-container">
-            <canvas id="doi-chart"></canvas>
-          </div>
+          <div class="chart-container"><canvas id="doi-chart"></canvas></div>
         </div>
       </div>
-    </div><!-- /card -->
+    </div>
 
-    <!-- Actions -->
+    <!-- Export actions -->
     <div class="flex gap-2 flex-wrap section no-print">
       <button class="btn btn-success" onclick="exportExcel()">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
-        Xuất Excel (.xlsx)
+        <span data-i18n="btnExportExcel">Xuất Excel (.xlsx)</span>
       </button>
       <button class="btn btn-outline" onclick="window.print()">
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-        In / Export PDF
+        <span data-i18n="btnPrint">In / Export PDF</span>
       </button>
       <button class="btn btn-ghost" onclick="backToImport()">
-        ← Import file mới
+        <span data-i18n="btnBack">← Import file mới</span>
       </button>
     </div>
 
   </div><!-- /phase-results -->
+</div>
 
-</div><!-- /container -->
-
-<!-- Toast container -->
 <div id="toast-container"></div>
 
 <script>
+// ══════════════════════════════════════════════════════════════════
+// I18N
+// ══════════════════════════════════════════════════════════════════
+const translations = {
+  vi: {
+    appTitle:'Boxme NVL Forecast',
+    step1:'Import Files', step2:'Xem kết quả', step3:'Xuất PO',
+    configTitle:'Cấu hình',
+    doiTargetLabel:'DOI Target (ngày)', itMaxLabel:'IT tối đa (ngưỡng)',
+    vatLabel:'VAT mặc định (%)', periodLabel:'Kỳ báo cáo (ngày)',
+    invTitle:'Inventory 30 days', agingTitle:'Aging Report', priceTitle:'Bảng giá',
+    invHint:'Cột: SKU, Outbound, Close, Warehouse',
+    agingHint:'Cột: Kho, Seller SKU, <15 days…',
+    priceHint:'Cột: SKU, Đơn giá (-VAT), Số lượng/pack',
+    btnCalculate:'Tính toán', btnDemo:'Tải dữ liệu demo',
+    importHint:'Upload đủ 3 file để tính toán', importReady:'✅ Sẵn sàng tính toán',
+    allKho:'Tất cả kho', allDOI:'Tất cả DOI', allOrder:'Tất cả',
+    doiDanger:'🔴 Nguy hiểm <20', doiWarn:'🟡 Cảnh báo 20-29', doiOk:'🟢 Ổn định 30+',
+    needOrder:'Chỉ cần đặt hàng', noOrder:'Không cần đặt',
+    btnReset:'↩ Reset Qty', btnApplyDOI:'⚡ Apply DOI Target',
+    chartShowTop:'Hiện top', chartAllSKU:'Tất cả',
+    thKho:'Kho', thName:'Tên SP', thDemand:'Demand 30d', thInventory:'Tồn kho',
+    thBatch:'Batch đặt', thQuyCach:'Quy cách', thSLNhap:'SL nhập',
+    thDonGia:'Đơn giá', thThanhTien:'Thành tiền+VAT', thDOI:'DOI', thIT:'IT',
+    tabTable:'📋 Bảng PO', tabChart:'📊 DOI Chart',
+    statTotalSKU:'Tổng SKU', statNeedOrder:'cần đặt hàng',
+    statDangerDOI:'DOI nguy hiểm', statDangerSub:'DOI < 20 ngày',
+    statTotalValue:'Tổng giá trị (+VAT)', statAllKho:'Tất cả kho',
+    statNoPrice:'Chưa có giá', statNoPriceSub:'SKU thiếu đơn giá',
+    statITWarn:'IT vượt ngưỡng', statITWarnSub:'IT > {max}',
+    alertDanger:'⚠️ {n} SKU DOI < 20 ngày (nguy hiểm):',
+    alertITExceed:'📊 {n} SKU Inventory Turnover vượt ngưỡng IT > {max} — Batch đang quá lớn so với nhu cầu.',
+    alertNoPrice:'💰 {n} SKU cần đặt nhưng chưa có đơn giá.',
+    alertNoDemand:'ℹ️ {n} SKU không có demand trong kỳ. Qty_Batch = 0.',
+    btnExportExcel:'Xuất Excel (.xlsx)', btnPrint:'In / Export PDF', btnBack:'← Import file mới',
+    toastDemoLoaded:'Đã tải dữ liệu demo (24 SKU × 4 kho)',
+    toastCalculated:'Đã tính toán {n} SKU',
+    toastAppliedDOI:'Đã áp dụng DOI target cho tất cả dòng',
+    toastReset:'Đã reset về giá trị gợi ý', toastExported:'Đã xuất file Excel',
+    noPriceBadge:'Chưa có giá',
+    tableInfo:'{total} dòng | Trang {page}/{pages}',
+    demoRecords:'{n} bản ghi', demoLabel:'✓ [Demo data]',
+    fileLabel:'✓ {name}', fileRecords:'{n} bản ghi',
+    errMissingCol:'Thiếu cột "{col}"', errReadFile:'Lỗi đọc file: {msg}',
+    locale:'vi-VN',
+    exportCompany:'CÔNG TY CỔ PHẦN DỊCH VỤ HẬU CẦN BOXME VIỆT NAM',
+    exportTitle:'ĐƠN ĐẶT HÀNG {month}',
+    exportCols:['Số PO','Kho','NCC','Mã sản phẩm (SKU)','Tên Sản Phẩm','Số Lượng (Batch)','Quy Cách Nhập Kho','Đơn Vị Nhập','Số Lượng Nhập Kho','Đơn Giá (-VAT)','Thành Tiền (-VAT)','Thuế suất VAT','Thành tiền (+VAT)','Demand 30 days','Inventory Turnover','Pending Inventory','Inventory','DOI','SL xuất trong vòng 25 ngày','Ghi Chú'],
+    priceTitle2:'Bảng giá (Bang gia)',
+  },
+  en: {
+    appTitle:'Boxme NVL Forecast',
+    step1:'Import Files', step2:'View Results', step3:'Export PO',
+    configTitle:'Configuration',
+    doiTargetLabel:'DOI Target (days)', itMaxLabel:'Max IT (threshold)',
+    vatLabel:'Default VAT (%)', periodLabel:'Report Period (days)',
+    invTitle:'Inventory 30 days', agingTitle:'Aging Report', priceTitle:'Price List',
+    invHint:'Columns: SKU, Outbound, Close, Warehouse',
+    agingHint:'Columns: Kho, Seller SKU, <15 days…',
+    priceHint:'Columns: SKU, Unit Price (-VAT), Pack Qty',
+    btnCalculate:'Calculate', btnDemo:'Load Demo Data',
+    importHint:'Upload all 3 files to calculate', importReady:'✅ Ready to calculate',
+    allKho:'All Warehouses', allDOI:'All DOI', allOrder:'All',
+    doiDanger:'🔴 Danger <20', doiWarn:'🟡 Warning 20-29', doiOk:'🟢 Stable 30+',
+    needOrder:'Need to order', noOrder:'No order needed',
+    btnReset:'↩ Reset Qty', btnApplyDOI:'⚡ Apply DOI Target',
+    chartShowTop:'Show top', chartAllSKU:'All',
+    thKho:'Warehouse', thName:'Product Name', thDemand:'Demand 30d', thInventory:'Inventory',
+    thBatch:'Order Batch', thQuyCach:'Pack Size', thSLNhap:'Order Qty',
+    thDonGia:'Unit Price', thThanhTien:'Total (+VAT)', thDOI:'DOI', thIT:'IT',
+    tabTable:'📋 PO Table', tabChart:'📊 DOI Chart',
+    statTotalSKU:'Total SKUs', statNeedOrder:'need ordering',
+    statDangerDOI:'DOI Danger', statDangerSub:'DOI < 20 days',
+    statTotalValue:'Total Value (+VAT)', statAllKho:'All warehouses',
+    statNoPrice:'Missing Price', statNoPriceSub:'SKUs without price',
+    statITWarn:'IT Over Limit', statITWarnSub:'IT > {max}',
+    alertDanger:'⚠️ {n} SKUs with DOI < 20 days (critical):',
+    alertITExceed:'📊 {n} SKUs exceed IT threshold IT > {max} — batch too large vs. demand.',
+    alertNoPrice:'💰 {n} SKUs need ordering but have no unit price.',
+    alertNoDemand:'ℹ️ {n} SKUs have no demand this period. Qty_Batch = 0.',
+    btnExportExcel:'Export Excel (.xlsx)', btnPrint:'Print / Export PDF', btnBack:'← Import new files',
+    toastDemoLoaded:'Demo data loaded (24 SKUs × 4 warehouses)',
+    toastCalculated:'Calculated {n} SKUs',
+    toastAppliedDOI:'DOI target applied to all rows',
+    toastReset:'Reset to suggested values', toastExported:'Excel file exported',
+    noPriceBadge:'No price',
+    tableInfo:'{total} rows | Page {page}/{pages}',
+    demoRecords:'{n} records', demoLabel:'✓ [Demo data]',
+    fileLabel:'✓ {name}', fileRecords:'{n} records',
+    errMissingCol:'Missing column "{col}"', errReadFile:'File read error: {msg}',
+    locale:'en-US',
+    exportCompany:'BOXME VIETNAM LOGISTICS JOINT STOCK COMPANY',
+    exportTitle:'PURCHASE ORDER {month}',
+    exportCols:['PO No.','Warehouse','Supplier','Product Code (SKU)','Product Name','Qty (Batch)','Pack Size','Unit','Import Qty','Unit Price (-VAT)','Amount (-VAT)','VAT Rate','Amount (+VAT)','Demand 30 days','Inventory Turnover','Pending Inventory','Inventory','DOI','Outbound in 25 days','Notes'],
+    priceTitle2:'Price List',
+  },
+  th: {
+    appTitle:'Boxme NVL Forecast',
+    step1:'นำเข้าไฟล์', step2:'ดูผลลัพธ์', step3:'ส่งออก PO',
+    configTitle:'การตั้งค่า',
+    doiTargetLabel:'DOI เป้าหมาย (วัน)', itMaxLabel:'IT สูงสุด (เกณฑ์)',
+    vatLabel:'VAT เริ่มต้น (%)', periodLabel:'ช่วงรายงาน (วัน)',
+    invTitle:'สินค้าคงคลัง 30 วัน', agingTitle:'รายงานอายุสินค้า', priceTitle:'รายการราคา',
+    invHint:'คอลัมน์: SKU, Outbound, Close, Warehouse',
+    agingHint:'คอลัมน์: Kho, Seller SKU, <15 days…',
+    priceHint:'คอลัมน์: SKU, ราคาต่อหน่วย (-VAT), จำนวนต่อแพ็ค',
+    btnCalculate:'คำนวณ', btnDemo:'โหลดข้อมูลตัวอย่าง',
+    importHint:'อัปโหลดไฟล์ทั้ง 3 เพื่อคำนวณ', importReady:'✅ พร้อมคำนวณ',
+    allKho:'คลังทั้งหมด', allDOI:'DOI ทั้งหมด', allOrder:'ทั้งหมด',
+    doiDanger:'🔴 อันตราย <20', doiWarn:'🟡 เตือน 20-29', doiOk:'🟢 ปกติ 30+',
+    needOrder:'ต้องสั่งซื้อ', noOrder:'ไม่ต้องสั่ง',
+    btnReset:'↩ รีเซ็ต Qty', btnApplyDOI:'⚡ ใช้ DOI Target',
+    chartShowTop:'แสดง', chartAllSKU:'ทั้งหมด',
+    thKho:'คลังสินค้า', thName:'ชื่อสินค้า', thDemand:'ความต้องการ 30 วัน', thInventory:'คงคลัง',
+    thBatch:'ล็อตสั่งซื้อ', thQuyCach:'ขนาดแพ็ค', thSLNhap:'จำนวนสั่ง',
+    thDonGia:'ราคาต่อหน่วย', thThanhTien:'รวม (+VAT)', thDOI:'DOI', thIT:'IT',
+    tabTable:'📋 ตาราง PO', tabChart:'📊 แผนภูมิ DOI',
+    statTotalSKU:'SKU ทั้งหมด', statNeedOrder:'ต้องสั่งซื้อ',
+    statDangerDOI:'DOI อันตราย', statDangerSub:'DOI < 20 วัน',
+    statTotalValue:'มูลค่ารวม (+VAT)', statAllKho:'ทุกคลัง',
+    statNoPrice:'ไม่มีราคา', statNoPriceSub:'SKU ที่ขาดราคาต่อหน่วย',
+    statITWarn:'IT เกินเกณฑ์', statITWarnSub:'IT > {max}',
+    alertDanger:'⚠️ {n} SKU DOI < 20 วัน (อันตราย):',
+    alertITExceed:'📊 {n} SKU เกินเกณฑ์ IT > {max} — ล็อตสั่งมากเกินความต้องการ',
+    alertNoPrice:'💰 {n} SKU ต้องสั่งแต่ไม่มีราคาต่อหน่วย',
+    alertNoDemand:'ℹ️ {n} SKU ไม่มีความต้องการในช่วงนี้ Qty_Batch = 0',
+    btnExportExcel:'ส่งออก Excel (.xlsx)', btnPrint:'พิมพ์ / ส่งออก PDF', btnBack:'← นำเข้าไฟล์ใหม่',
+    toastDemoLoaded:'โหลดข้อมูลตัวอย่างแล้ว (24 SKU × 4 คลัง)',
+    toastCalculated:'คำนวณ {n} SKU แล้ว',
+    toastAppliedDOI:'ใช้ DOI target กับทุกรายการแล้ว',
+    toastReset:'รีเซ็ตเป็นค่าที่แนะนำแล้ว', toastExported:'ส่งออกไฟล์ Excel แล้ว',
+    noPriceBadge:'ไม่มีราคา',
+    tableInfo:'{total} รายการ | หน้า {page}/{pages}',
+    demoRecords:'{n} รายการ', demoLabel:'✓ [ข้อมูลตัวอย่าง]',
+    fileLabel:'✓ {name}', fileRecords:'{n} รายการ',
+    errMissingCol:'ขาดคอลัมน์ "{col}"', errReadFile:'อ่านไฟล์ผิดพลาด: {msg}',
+    locale:'th-TH',
+    exportCompany:'BOXME VIETNAM LOGISTICS JOINT STOCK COMPANY',
+    exportTitle:'ใบสั่งซื้อ {month}',
+    exportCols:['ลำดับ PO','คลังสินค้า','ผู้จัดจำหน่าย','รหัสสินค้า (SKU)','ชื่อสินค้า','จำนวน (ล็อต)','ขนาดแพ็ค','หน่วย','จำนวนนำเข้า','ราคาต่อหน่วย (-VAT)','ยอดรวม (-VAT)','อัตรา VAT','ยอดรวม (+VAT)','ความต้องการ 30 วัน','Inventory Turnover','สินค้ารอ','คงคลัง','DOI','ยอดออก 25 วัน','หมายเหตุ'],
+    priceTitle2:'รายการราคา',
+  }
+};
+
+let currentLang = localStorage.getItem('nvl-lang') || 'vi';
+
+function t(key, vars) {
+  let s = (translations[currentLang] || translations.vi)[key] || key;
+  if (vars) for (const k of Object.keys(vars)) s = s.replace(new RegExp('{'+k+'}','g'), vars[k]);
+  return s;
+}
+
+function setLang(lang) {
+  currentLang = lang;
+  localStorage.setItem('nvl-lang', lang);
+  document.getElementById('html-root').lang = lang;
+  ['vi','en','th'].forEach(l => document.getElementById('lang-'+l).classList.toggle('active', l === lang));
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+  const hint = document.getElementById('import-hint');
+  if (hint) {
+    const allReady = state.filesReady.inv && state.filesReady.aging && state.filesReady.price;
+    hint.textContent = allReady ? t('importReady') : t('importHint');
+  }
+  buildFilterSelects();
+  if (!document.getElementById('phase-results').classList.contains('hidden')) {
+    renderSummary(); renderAlerts(); renderTable();
+    if (!document.getElementById('view-chart').classList.contains('hidden')) renderChart();
+  }
+}
+
+function buildFilterSelects() {
+  const khoOptions = `<option value="">${t('allKho')}</option>
+    <option>VSIP</option><option>Lê Minh Xuân</option>
+    <option>Bình Tân</option><option>Tân Tạo</option><option>Stock</option>`;
+  const doiOptions = `<option value="">${t('allDOI')}</option>
+    <option value="danger">${t('doiDanger')}</option>
+    <option value="warn">${t('doiWarn')}</option>
+    <option value="ok">${t('doiOk')}</option>`;
+  const orderOptions = `<option value="">${t('allOrder')}</option>
+    <option value="order">${t('needOrder')}</option>
+    <option value="noorder">${t('noOrder')}</option>`;
+
+  const restore = (id, opts) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const cur = el.value;
+    el.innerHTML = opts;
+    el.value = cur;
+  };
+  restore('filter-kho', khoOptions);
+  restore('filter-doi', doiOptions);
+  restore('filter-order', orderOptions);
+  restore('chart-kho', khoOptions);
+  const cTopAll = document.querySelector('#chart-top option[data-i18n-opt="chartAllSKU"]');
+  if (cTopAll) cTopAll.textContent = t('chartAllSKU');
+}
+
 // ══════════════════════════════════════════════════════════════════
 // STATE
 // ══════════════════════════════════════════════════════════════════
 const state = {
   inv: null, aging: null, price: null,
-  poLines: [],
-  filtered: [],
+  poLines: [], filtered: [],
   sortKey: 'doi', sortAsc: true,
   page: 1, pageSize: 50,
   chart: null,
@@ -506,11 +639,10 @@ const state = {
 // UTILS
 // ══════════════════════════════════════════════════════════════════
 const fmt = {
-  num : v => v == null ? '—' : Number(v).toLocaleString('vi-VN'),
-  vnd : v => v == null || v === 0 ? '—' : Number(v).toLocaleString('vi-VN', {style:'currency', currency:'VND', maximumFractionDigits:0}),
-  pct : v => v == null ? '—' : (v*100).toFixed(1) + '%',
-  doi : v => v == null ? '—' : Number(v).toFixed(2),
-  it  : v => v == null ? '—' : Number(v).toFixed(4),
+  num: v => v == null ? '—' : Number(v).toLocaleString(t('locale')),
+  vnd: v => v == null || v === 0 ? '—' : Number(v).toLocaleString(t('locale'), {style:'currency', currency:'VND', maximumFractionDigits:0}),
+  doi: v => v == null ? '—' : Number(v).toFixed(2),
+  it:  v => v == null ? '—' : Number(v).toFixed(4),
 };
 
 function toast(msg, type = 'info') {
@@ -521,10 +653,8 @@ function toast(msg, type = 'info') {
   setTimeout(() => el.remove(), 3500);
 }
 
-function normalize(s) { return String(s || '').trim().toLowerCase(); }
-
 // ══════════════════════════════════════════════════════════════════
-// DOI TARGET SLIDER
+// SLIDER
 // ══════════════════════════════════════════════════════════════════
 document.getElementById('doi-target').addEventListener('input', function(){
   document.getElementById('doi-target-val').textContent = this.value;
@@ -536,13 +666,10 @@ document.getElementById('doi-target').addEventListener('input', function(){
 function dragOver(e, zoneId) { e.preventDefault(); document.getElementById(zoneId).classList.add('drag'); }
 function dragLeave(zoneId)   { document.getElementById(zoneId).classList.remove('drag'); }
 function drop(e, type) {
-  e.preventDefault();
-  const zoneId = 'zone-' + (type === 'inv' ? 'inv' : type === 'aging' ? 'aging' : 'price');
-  dragLeave(zoneId);
+  e.preventDefault(); dragLeave('zone-'+type);
   const file = e.dataTransfer.files[0];
   if (file) parseFile(file, type);
 }
-
 function handleFile(event, type) { parseFile(event.target.files[0], type); }
 
 function parseFile(file, type) {
@@ -550,21 +677,20 @@ function parseFile(file, type) {
   const reader = new FileReader();
   reader.onload = e => {
     try {
-      const wb = XLSX.read(e.target.result, { type: 'array' });
+      const wb = XLSX.read(e.target.result, { type:'array' });
       const ws = wb.Sheets[wb.SheetNames[0]];
-      const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
+      const rows = XLSX.utils.sheet_to_json(ws, { defval:'' });
       processFileData(rows, type, file.name);
-    } catch(err) { showFileError(type, 'Không đọc được file: ' + err.message); }
+    } catch(err) { showFileError(type, t('errReadFile', { msg: err.message })); }
   };
   reader.readAsArrayBuffer(file);
 }
 
 function processFileData(rows, type, filename) {
-  const zoneId = { inv:'zone-inv', aging:'zone-aging', price:'zone-price' }[type];
+  const zoneId  = { inv:'zone-inv', aging:'zone-aging', price:'zone-price' }[type];
   const labelId = { inv:'inv-label', aging:'aging-label', price:'price-label' }[type];
-  const statusId = { inv:'inv-status', aging:'aging-status', price:'price-status' }[type];
+  const statusId= { inv:'inv-status', aging:'aging-status', price:'price-status' }[type];
 
-  // Normalize header keys
   const normalized = rows.map(r => {
     const out = {};
     for (const k of Object.keys(r)) out[k.trim()] = r[k];
@@ -573,36 +699,28 @@ function processFileData(rows, type, filename) {
 
   let err = null;
   if (type === 'inv') {
-    const req = ['SKU', 'Outbound', 'Close'];
-    for (const c of req) if (!normalized[0] || !(c in normalized[0])) { err = `Thiếu cột "${c}"`; break; }
-    if (!err) {
-      state.inv = normalized;
-      state.filesReady.inv = true;
+    for (const c of ['SKU','Outbound','Close']) {
+      if (!normalized[0] || !(c in normalized[0])) { err = t('errMissingCol', { col: c }); break; }
     }
+    if (!err) { state.inv = normalized; state.filesReady.inv = true; }
   } else if (type === 'aging') {
-    // flexible – just store as-is
-    state.aging = normalized;
-    state.filesReady.aging = true;
-  } else if (type === 'price') {
-    const req = ['SKU'];
-    if (!normalized[0] || !normalized[0]['SKU']) err = 'Thiếu cột "SKU"';
+    state.aging = normalized; state.filesReady.aging = true;
+  } else {
+    if (!normalized[0] || !normalized[0]['SKU']) err = t('errMissingCol', { col: 'SKU' });
     if (!err) { state.price = normalized; state.filesReady.price = true; }
   }
 
   if (err) { showFileError(type, err); return; }
-
   document.getElementById(zoneId).classList.remove('error');
   document.getElementById(zoneId).classList.add('done');
-  document.getElementById(labelId).textContent = `✓ ${filename}`;
+  document.getElementById(labelId).textContent = t('fileLabel', { name: filename });
   document.getElementById(statusId).innerHTML =
-    `<span style="color:var(--success)">${normalized.length} bản ghi</span>`;
-
+    `<span style="color:var(--success)">${t('fileRecords', { n: normalized.length })}</span>`;
   checkAllReady();
 }
 
 function showFileError(type, msg) {
-  const zoneId = { inv:'zone-inv', aging:'zone-aging', price:'zone-price' }[type];
-  document.getElementById(zoneId).classList.add('error');
+  document.getElementById('zone-'+type).classList.add('error');
   document.getElementById({ inv:'inv-status', aging:'aging-status', price:'price-status' }[type]).innerHTML =
     `<span style="color:var(--danger)">❌ ${msg}</span>`;
   toast(msg, 'error');
@@ -611,84 +729,73 @@ function showFileError(type, msg) {
 function checkAllReady() {
   const all = state.filesReady.inv && state.filesReady.aging && state.filesReady.price;
   document.getElementById('btn-calculate').disabled = !all;
-  document.getElementById('import-hint').textContent = all
-    ? '✅ Sẵn sàng tính toán' : 'Upload đủ 3 file để tính toán';
+  document.getElementById('import-hint').textContent = all ? t('importReady') : t('importHint');
 }
 
 // ══════════════════════════════════════════════════════════════════
 // DEMO DATA
 // ══════════════════════════════════════════════════════════════════
 function loadDemo() {
-  // ── Inventory 30 days ─────────────────────────────────────────
   state.inv = [
-    {SKU:'BOX25X20X12', 'Product name':'Hộp 57A',     Opening:100,  Inbound:400,  Return:0, Outbound:320,  Close:180, Warehouse:'VSIP'},
-    {SKU:'BM_PE02',     'Product name':'BM_PE02',      Opening:300,  Inbound:0,    Return:0, Outbound:240,  Close:60,  Warehouse:'VSIP'},
-    {SKU:'GIAY IN NHIET AWB','Product name':'Giấy In Bill', Opening:380,Inbound:200,Return:0,Outbound:400, Close:180, Warehouse:'VSIP'},
-    {SKU:'BOX16X6X6',   'Product name':'Hộp 28',       Opening:1700, Inbound:0,    Return:0, Outbound:1700, Close:0,   Warehouse:'VSIP'},
-    {SKU:'BANG KEO DE VO','Product name':'Băng keo dễ vỡ',Opening:339,Inbound:559,Return:0,Outbound:739,  Close:159, Warehouse:'VSIP'},
-    {SKU:'BM_BUBBLE',   'Product name':'BM_BUBBLE',    Opening:201,  Inbound:1229, Return:0, Outbound:1330, Close:100, Warehouse:'VSIP'},
-    {SKU:'BOX22X8X8',   'Product name':'Hộp 38B',      Opening:447,  Inbound:785,  Return:0, Outbound:1082, Close:150, Warehouse:'VSIP'},
-    {SKU:'BOX18X13X6',  'Product name':'Hộp 37',       Opening:500,  Inbound:0,    Return:0, Outbound:230,  Close:270, Warehouse:'VSIP'},
-    {SKU:'BOX35X25X14', 'Product name':'Hộp 74B',      Opening:355,  Inbound:400,  Return:0, Outbound:355,  Close:400, Warehouse:'VSIP'},
-    {SKU:'BOX28X19X10', 'Product name':'Hộp 57B',      Opening:209,  Inbound:0,    Return:0, Outbound:209,  Close:0,   Warehouse:'VSIP'},
-    {SKU:'PE-WHITE',    'Product name':'Màng Co Trắng', Opening:200,  Inbound:450,  Return:0, Outbound:360,  Close:290, Warehouse:'VSIP'},
-    // LMX
-    {SKU:'BOX35X25X20', 'Product name':'Hộp 80',       Opening:280,  Inbound:1100, Return:0, Outbound:847,  Close:533, Warehouse:'Lê Minh Xuân'},
-    {SKU:'BOX18X10X8',  'Product name':'Hộp 36',       Opening:500,  Inbound:2650, Return:0, Outbound:3150, Close:0,   Warehouse:'Lê Minh Xuân'},
-    {SKU:'BANG KEO TRONG LON','Product name':'Băng keo trong',Opening:0,Inbound:1500,Return:0,Outbound:900,Close:600, Warehouse:'Lê Minh Xuân'},
-    {SKU:'BM_BUBBLE',   'Product name':'BM_BUBBLE',    Opening:238,  Inbound:1516, Return:0, Outbound:1436, Close:318, Warehouse:'Lê Minh Xuân'},
-    {SKU:'BOX18X13X6',  'Product name':'Hộp 37',       Opening:0,    Inbound:1300, Return:0, Outbound:1300, Close:0,   Warehouse:'Lê Minh Xuân'},
-    // Binh Tan
-    {SKU:'BOX16X6X6',   'Product name':'Hộp 28',       Opening:1500, Inbound:6526, Return:0, Outbound:7066, Close:960, Warehouse:'Bình Tân'},
-    {SKU:'BOX18X13X6',  'Product name':'Hộp 37',       Opening:87,   Inbound:3000, Return:0, Outbound:2587, Close:500, Warehouse:'Bình Tân'},
-    {SKU:'BOX16X10X5',  'Product name':'Hộp 31',       Opening:0,    Inbound:2284, Return:0, Outbound:2284, Close:0,   Warehouse:'Bình Tân'},
-    {SKU:'GIAY IN NHIET AWB','Product name':'Giấy In Bill',Opening:0, Inbound:1400,Return:0,Outbound:1400, Close:0,   Warehouse:'Bình Tân'},
-    // Tan Tao
-    {SKU:'BOX25X15X10', 'Product name':'Hộp 50B',      Opening:1140, Inbound:4100, Return:0, Outbound:3540, Close:1700,Warehouse:'Tân Tạo'},
-    {SKU:'BOX28X19X10', 'Product name':'Hộp 57B',      Opening:240,  Inbound:1950, Return:0, Outbound:1530, Close:660, Warehouse:'Tân Tạo'},
-    {SKU:'BOX22X8X8',   'Product name':'Hộp 38B',      Opening:40,   Inbound:2143, Return:0, Outbound:1437, Close:746, Warehouse:'Tân Tạo'},
-    {SKU:'BANG KEO TRONG LON','Product name':'Băng keo trong',Opening:0,Inbound:550,Return:0,Outbound:400, Close:150, Warehouse:'Tân Tạo'},
+    {SKU:'BOX25X20X12','Product name':'Hộp 57A',    Opening:100, Inbound:400, Return:0,Outbound:320, Close:180,Warehouse:'VSIP'},
+    {SKU:'BM_PE02',    'Product name':'BM_PE02',     Opening:300, Inbound:0,   Return:0,Outbound:240, Close:60, Warehouse:'VSIP'},
+    {SKU:'GIAY IN NHIET AWB','Product name':'Giấy In Bill',Opening:380,Inbound:200,Return:0,Outbound:400,Close:180,Warehouse:'VSIP'},
+    {SKU:'BOX16X6X6',  'Product name':'Hộp 28',      Opening:1700,Inbound:0,   Return:0,Outbound:1700,Close:0,  Warehouse:'VSIP'},
+    {SKU:'BANG KEO DE VO','Product name':'Băng keo dễ vỡ',Opening:339,Inbound:559,Return:0,Outbound:739,Close:159,Warehouse:'VSIP'},
+    {SKU:'BM_BUBBLE',  'Product name':'BM_BUBBLE',   Opening:201, Inbound:1229,Return:0,Outbound:1330,Close:100,Warehouse:'VSIP'},
+    {SKU:'BOX22X8X8',  'Product name':'Hộp 38B',     Opening:447, Inbound:785, Return:0,Outbound:1082,Close:150,Warehouse:'VSIP'},
+    {SKU:'BOX18X13X6', 'Product name':'Hộp 37',      Opening:500, Inbound:0,   Return:0,Outbound:230, Close:270,Warehouse:'VSIP'},
+    {SKU:'BOX35X25X14','Product name':'Hộp 74B',     Opening:355, Inbound:400, Return:0,Outbound:355, Close:400,Warehouse:'VSIP'},
+    {SKU:'BOX28X19X10','Product name':'Hộp 57B',     Opening:209, Inbound:0,   Return:0,Outbound:209, Close:0,  Warehouse:'VSIP'},
+    {SKU:'PE-WHITE',   'Product name':'Màng Co Trắng',Opening:200,Inbound:450, Return:0,Outbound:360, Close:290,Warehouse:'VSIP'},
+    {SKU:'BOX35X25X20','Product name':'Hộp 80',      Opening:280, Inbound:1100,Return:0,Outbound:847, Close:533,Warehouse:'Lê Minh Xuân'},
+    {SKU:'BOX18X10X8', 'Product name':'Hộp 36',      Opening:500, Inbound:2650,Return:0,Outbound:3150,Close:0,  Warehouse:'Lê Minh Xuân'},
+    {SKU:'BANG KEO TRONG LON','Product name':'Băng keo trong',Opening:0,Inbound:1500,Return:0,Outbound:900,Close:600,Warehouse:'Lê Minh Xuân'},
+    {SKU:'BM_BUBBLE',  'Product name':'BM_BUBBLE',   Opening:238, Inbound:1516,Return:0,Outbound:1436,Close:318,Warehouse:'Lê Minh Xuân'},
+    {SKU:'BOX18X13X6', 'Product name':'Hộp 37',      Opening:0,   Inbound:1300,Return:0,Outbound:1300,Close:0,  Warehouse:'Lê Minh Xuân'},
+    {SKU:'BOX16X6X6',  'Product name':'Hộp 28',      Opening:1500,Inbound:6526,Return:0,Outbound:7066,Close:960, Warehouse:'Bình Tân'},
+    {SKU:'BOX18X13X6', 'Product name':'Hộp 37',      Opening:87,  Inbound:3000,Return:0,Outbound:2587,Close:500, Warehouse:'Bình Tân'},
+    {SKU:'BOX16X10X5', 'Product name':'Hộp 31',      Opening:0,   Inbound:2284,Return:0,Outbound:2284,Close:0,   Warehouse:'Bình Tân'},
+    {SKU:'GIAY IN NHIET AWB','Product name':'Giấy In Bill',Opening:0,Inbound:1400,Return:0,Outbound:1400,Close:0, Warehouse:'Bình Tân'},
+    {SKU:'BOX25X15X10','Product name':'Hộp 50B',     Opening:1140,Inbound:4100,Return:0,Outbound:3540,Close:1700,Warehouse:'Tân Tạo'},
+    {SKU:'BOX28X19X10','Product name':'Hộp 57B',     Opening:240, Inbound:1950,Return:0,Outbound:1530,Close:660, Warehouse:'Tân Tạo'},
+    {SKU:'BOX22X8X8',  'Product name':'Hộp 38B',     Opening:40,  Inbound:2143,Return:0,Outbound:1437,Close:746, Warehouse:'Tân Tạo'},
+    {SKU:'BANG KEO TRONG LON','Product name':'Băng keo trong',Opening:0,Inbound:550,Return:0,Outbound:400,Close:150,Warehouse:'Tân Tạo'},
   ];
-
   state.aging = [
-    {Kho:'VSIP',  'Seller SKU':'BOX25X20X12', '<15 days':180,'15 to 30 days':0,'30 to 45 days':0,'45 to 60 days':0,'60 to 75 days':0,'75 to 90 days':0,'>90 days':0},
-    {Kho:'VSIP',  'Seller SKU':'BM_PE02',     '<15 days':60, '15 to 30 days':0,'30 to 45 days':0,'45 to 60 days':0,'60 to 75 days':0,'75 to 90 days':0,'>90 days':0},
-    {Kho:'VSIP',  'Seller SKU':'BM_BUBBLE',   '<15 days':100,'15 to 30 days':0,'30 to 45 days':0,'45 to 60 days':0,'60 to 75 days':0,'75 to 90 days':0,'>90 days':0},
-    {Kho:'Bình Tân','Seller SKU':'BOX16X6X6', '<15 days':960,'15 to 30 days':0,'30 to 45 days':0,'45 to 60 days':0,'60 to 75 days':0,'75 to 90 days':0,'>90 days':0},
+    {Kho:'VSIP','Seller SKU':'BOX25X20X12','<15 days':180,'15 to 30 days':0,'30 to 45 days':0,'45 to 60 days':0,'60 to 75 days':0,'75 to 90 days':0,'>90 days':0},
+    {Kho:'VSIP','Seller SKU':'BM_PE02',    '<15 days':60, '15 to 30 days':0,'30 to 45 days':0,'45 to 60 days':0,'60 to 75 days':0,'75 to 90 days':0,'>90 days':0},
+    {Kho:'VSIP','Seller SKU':'BM_BUBBLE',  '<15 days':100,'15 to 30 days':0,'30 to 45 days':0,'45 to 60 days':0,'60 to 75 days':0,'75 to 90 days':0,'>90 days':0},
+    {Kho:'Bình Tân','Seller SKU':'BOX16X6X6','<15 days':960,'15 to 30 days':0,'30 to 45 days':0,'45 to 60 days':0,'60 to 75 days':0,'75 to 90 days':0,'>90 days':0},
   ];
-
   state.price = [
-    {SKU:'BOX25X20X12','Đơn giá (-VAT)':2710, 'Số lượng / pack':1,  'Đơn vị tính':'Cái'},
-    {SKU:'BM_PE02',    'Đơn giá (-VAT)':12000,'Số lượng / pack':1,  'Đơn vị tính':'Cuộn'},
+    {SKU:'BOX25X20X12','Đơn giá (-VAT)':2710,   'Số lượng / pack':1,  'Đơn vị tính':'Cái'},
+    {SKU:'BM_PE02',    'Đơn giá (-VAT)':12000,  'Số lượng / pack':1,  'Đơn vị tính':'Cuộn'},
     {SKU:'GIAY IN NHIET AWB','Đơn giá (-VAT)':53500,'Số lượng / pack':1,'Đơn vị tính':'Cuộn'},
-    {SKU:'BOX16X6X6',  'Đơn giá (-VAT)':680,  'Số lượng / pack':20, 'Đơn vị tính':'Cái'},
-    {SKU:'BANG KEO DE VO','Đơn giá (-VAT)':19400,'Số lượng / pack':6,'Đơn vị tính':'Cuộn'},
-    {SKU:'BM_BUBBLE',  'Đơn giá (-VAT)':139500,'Số lượng / pack':3, 'Đơn vị tính':'Cuộn'},
-    {SKU:'BOX22X8X8',  'Đơn giá (-VAT)':1260, 'Số lượng / pack':20, 'Đơn vị tính':'Cái'},
-    {SKU:'BOX18X13X6', 'Đơn giá (-VAT)':1280, 'Số lượng / pack':20, 'Đơn vị tính':'Cái'},
-    {SKU:'BOX35X25X14','Đơn giá (-VAT)':4340, 'Số lượng / pack':20, 'Đơn vị tính':'Cái'},
-    {SKU:'BOX28X19X10','Đơn giá (-VAT)':2690, 'Số lượng / pack':20, 'Đơn vị tính':'Cái'},
-    {SKU:'PE-WHITE',   'Đơn giá (-VAT)':102000,'Số lượng / pack':1, 'Đơn vị tính':'Cuộn'},
-    {SKU:'BOX35X25X20','Đơn giá (-VAT)':5220, 'Số lượng / pack':20, 'Đơn vị tính':'Cái'},
-    {SKU:'BOX18X10X8', 'Đơn giá (-VAT)':1130, 'Số lượng / pack':20, 'Đơn vị tính':'Cái'},
+    {SKU:'BOX16X6X6',  'Đơn giá (-VAT)':680,    'Số lượng / pack':20, 'Đơn vị tính':'Cái'},
+    {SKU:'BANG KEO DE VO','Đơn giá (-VAT)':19400,'Số lượng / pack':6,  'Đơn vị tính':'Cuộn'},
+    {SKU:'BM_BUBBLE',  'Đơn giá (-VAT)':139500, 'Số lượng / pack':3,  'Đơn vị tính':'Cuộn'},
+    {SKU:'BOX22X8X8',  'Đơn giá (-VAT)':1260,   'Số lượng / pack':20, 'Đơn vị tính':'Cái'},
+    {SKU:'BOX18X13X6', 'Đơn giá (-VAT)':1280,   'Số lượng / pack':20, 'Đơn vị tính':'Cái'},
+    {SKU:'BOX35X25X14','Đơn giá (-VAT)':4340,   'Số lượng / pack':20, 'Đơn vị tính':'Cái'},
+    {SKU:'BOX28X19X10','Đơn giá (-VAT)':2690,   'Số lượng / pack':20, 'Đơn vị tính':'Cái'},
+    {SKU:'PE-WHITE',   'Đơn giá (-VAT)':102000, 'Số lượng / pack':1,  'Đơn vị tính':'Cuộn'},
+    {SKU:'BOX35X25X20','Đơn giá (-VAT)':5220,   'Số lượng / pack':20, 'Đơn vị tính':'Cái'},
+    {SKU:'BOX18X10X8', 'Đơn giá (-VAT)':1130,   'Số lượng / pack':20, 'Đơn vị tính':'Cái'},
     {SKU:'BANG KEO TRONG LON','Đơn giá (-VAT)':9000,'Số lượng / pack':6,'Đơn vị tính':'Cuộn'},
-    {SKU:'BOX16X10X5', 'Đơn giá (-VAT)':980,  'Số lượng / pack':20, 'Đơn vị tính':'Cái'},
-    {SKU:'BOX25X15X10','Đơn giá (-VAT)':2000, 'Số lượng / pack':20, 'Đơn vị tính':'Cái'},
+    {SKU:'BOX16X10X5', 'Đơn giá (-VAT)':980,    'Số lượng / pack':20, 'Đơn vị tính':'Cái'},
+    {SKU:'BOX25X15X10','Đơn giá (-VAT)':2000,   'Số lượng / pack':20, 'Đơn vị tính':'Cái'},
   ];
 
   state.filesReady = { inv: true, aging: true, price: true };
-
-  // Update UI
-  ['inv','aging','price'].forEach(t => {
-    const zone = {inv:'zone-inv',aging:'zone-aging',price:'zone-price'}[t];
-    const label = {inv:'inv-label',aging:'aging-label',price:'price-label'}[t];
-    const status = {inv:'inv-status',aging:'aging-status',price:'price-status'}[t];
-    document.getElementById(zone).classList.add('done');
-    document.getElementById(label).textContent = `✓ [Demo data]`;
-    document.getElementById(status).innerHTML = `<span style="color:var(--success)">${state[t].length} bản ghi</span>`;
+  ['inv','aging','price'].forEach(tp => {
+    document.getElementById({inv:'zone-inv',aging:'zone-aging',price:'zone-price'}[tp]).classList.add('done');
+    document.getElementById({inv:'inv-label',aging:'aging-label',price:'price-label'}[tp]).textContent = t('demoLabel');
+    document.getElementById({inv:'inv-status',aging:'aging-status',price:'price-status'}[tp]).innerHTML =
+      `<span style="color:var(--success)">${t('demoRecords', { n: state[tp].length })}</span>`;
   });
   checkAllReady();
-  toast('Đã tải dữ liệu demo (24 SKU × 4 kho)', 'success');
+  toast(t('toastDemoLoaded'), 'success');
 }
 
 // ══════════════════════════════════════════════════════════════════
@@ -696,10 +803,11 @@ function loadDemo() {
 // ══════════════════════════════════════════════════════════════════
 function calculate() {
   const doiTarget = parseInt(document.getElementById('doi-target').value);
+  const itMax     = parseFloat(document.getElementById('it-max').value) || 1.25;
   const vatRate   = parseFloat(document.getElementById('vat-rate').value) / 100;
   const period    = parseInt(document.getElementById('period-days').value);
 
-  // Build price lookup: SKU → { donGia, quyCach, donVi }
+  // Price lookup
   const priceMap = {};
   for (const r of state.price) {
     const sku = String(r['SKU'] || '').trim();
@@ -711,7 +819,7 @@ function calculate() {
     };
   }
 
-  // Build aging lookup: (SKU, Kho) → aging brackets
+  // Aging lookup
   const agingMap = {};
   for (const r of state.aging) {
     const sku = String(r['Seller SKU'] || r['SKU'] || '').trim();
@@ -728,7 +836,7 @@ function calculate() {
     };
   }
 
-  // Build PO lines from inventory
+  // Build PO lines
   const lines = [];
   for (const r of state.inv) {
     const sku      = String(r['SKU'] || '').trim();
@@ -740,41 +848,38 @@ function calculate() {
     const opening  = parseFloat(r['Opening']     || 0);
     const inbound  = parseFloat(r['Inbound']     || 0);
     const name     = String(r['Product name'] || r['Tên Sản Phẩm'] || sku);
+    const px       = priceMap[sku] || { donGia: 0, quyCach: 1, donVi: '—' };
 
-    // Price lookup
-    const px = priceMap[sku] || { donGia: 0, quyCach: 1, donVi: '—' };
+    // Suggested Qty_Batch: aim for DOI = doiTarget
+    // Also apply IT cap: if IT would exceed itMax, reduce qty to itMax * period
+    let qtyBatch = demand === 0 ? 0 : Math.max(0, Math.ceil((doiTarget * demand / period) - invClose));
 
-    // Suggested qty_batch: aim for DOI = doiTarget
-    // Qty_Batch = max(0, doiTarget * demand/period - invClose)
-    let qtyBatch = Math.max(0, Math.ceil((doiTarget * demand / period) - invClose));
-    // If demand=0, no order needed
-    if (demand === 0) qtyBatch = 0;
+    // IT guard: (invClose + qtyBatch) / period <= itMax
+    // => qtyBatch <= itMax * period - invClose
+    if (demand > 0) {
+      const maxQtyByIT = Math.floor(itMax * demand - invClose);
+      if (maxQtyByIT < qtyBatch) qtyBatch = Math.max(0, maxQtyByIT);
+    }
 
-    // Calculations
     const slNhap       = qtyBatch * px.quyCach;
     const thanhTien    = slNhap * px.donGia;
     const thanhTienVAT = thanhTien * (1 + vatRate);
     const doi          = demand > 0 ? (invClose + qtyBatch) * period / demand : 0;
     const it           = period > 0 ? doi / period : 0;
-    const slDatThem    = demand - invClose;
-
-    // Aging
-    const aging = agingMap[`${sku}|${kho}`] || null;
+    const slDatThem    = Math.max(0, demand - invClose);
 
     lines.push({
-      kho, sku, name,
-      demand, invClose, opening, inbound,
+      kho, sku, name, demand, invClose, opening, inbound,
       qtyBatch, qtyBatchSuggested: qtyBatch, qtyBatchChanged: false,
       quyCach: px.quyCach, donVi: px.donVi, slNhap,
-      donGia: px.donGia, vatRate,
-      thanhTien, thanhTienVAT,
-      doi, it, slDatThem,
-      aging,
+      donGia: px.donGia, vatRate, thanhTien, thanhTienVAT,
+      doi, it, slDatThem, itMax,
+      aging: agingMap[`${sku}|${kho}`] || null,
       hasPricing: px.donGia > 0,
+      itExceed: it > itMax,
     });
   }
 
-  // Sort default: DOI asc
   lines.sort((a, b) => a.doi - b.doi);
   state.poLines = lines;
   state.page = 1;
@@ -784,13 +889,10 @@ function calculate() {
   renderSummary();
   renderAlerts();
   renderChart();
-  toast(`Đã tính toán ${lines.length} SKU`, 'success');
-
-  // Step indicator
+  toast(t('toastCalculated', { n: lines.length }), 'success');
   setStep(2);
 }
 
-// ── Recalc single line ──────────────────────────────────────────
 function recalcLine(line) {
   const period    = parseInt(document.getElementById('period-days').value);
   line.slNhap       = line.qtyBatch * line.quyCach;
@@ -798,22 +900,25 @@ function recalcLine(line) {
   line.thanhTienVAT = line.thanhTien * (1 + line.vatRate);
   line.doi          = line.demand > 0 ? (line.invClose + line.qtyBatch) * period / line.demand : 0;
   line.it           = period > 0 ? line.doi / period : 0;
+  line.itExceed     = line.it > line.itMax;
 }
 
 function applyTargetDOI() {
   const doiTarget = parseInt(document.getElementById('doi-target').value);
+  const itMax     = parseFloat(document.getElementById('it-max').value) || 1.25;
   const period    = parseInt(document.getElementById('period-days').value);
   for (const l of state.poLines) {
     if (l.demand > 0) {
-      l.qtyBatch = Math.max(0, Math.ceil(doiTarget * l.demand / period - l.invClose));
+      let q = Math.max(0, Math.ceil(doiTarget * l.demand / period - l.invClose));
+      const maxByIT = Math.floor(itMax * l.demand - l.invClose);
+      if (maxByIT < q) q = Math.max(0, maxByIT);
+      l.qtyBatch = q;
       l.qtyBatchChanged = l.qtyBatch !== l.qtyBatchSuggested;
     }
     recalcLine(l);
   }
-  applyFilters();
-  renderSummary();
-  renderChart();
-  toast('Đã áp dụng DOI target cho tất cả dòng', 'success');
+  applyFilters(); renderSummary(); renderChart();
+  toast(t('toastAppliedDOI'), 'success');
 }
 
 function resetAllQty() {
@@ -822,10 +927,8 @@ function resetAllQty() {
     l.qtyBatchChanged = false;
     recalcLine(l);
   }
-  applyFilters();
-  renderSummary();
-  renderChart();
-  toast('Đã reset về giá trị gợi ý', 'info');
+  applyFilters(); renderSummary(); renderChart();
+  toast(t('toastReset'), 'info');
 }
 
 // ══════════════════════════════════════════════════════════════════
@@ -837,15 +940,13 @@ function applyFilters() {
   const order = document.getElementById('filter-order').value;
 
   let lines = [...state.poLines];
-
-  if (kho)   lines = lines.filter(l => l.kho === kho);
-  if (doi === 'danger') lines = lines.filter(l => l.doi > 0 && l.doi < 20);
+  if (kho) lines = lines.filter(l => l.kho === kho);
+  if (doi === 'danger')    lines = lines.filter(l => l.doi > 0 && l.doi < 20);
   else if (doi === 'warn') lines = lines.filter(l => l.doi >= 20 && l.doi < 30);
   else if (doi === 'ok')   lines = lines.filter(l => l.doi >= 30);
-  if (order === 'order')   lines = lines.filter(l => l.qtyBatch > 0);
+  if (order === 'order')    lines = lines.filter(l => l.qtyBatch > 0);
   else if (order === 'noorder') lines = lines.filter(l => l.qtyBatch === 0);
 
-  // Sort
   lines.sort((a, b) => {
     let va = a[state.sortKey] ?? 0;
     let vb = b[state.sortKey] ?? 0;
@@ -872,9 +973,9 @@ function sortBy(key) {
 // RENDER TABLE
 // ══════════════════════════════════════════════════════════════════
 function doiClass(doi) {
-  if (doi <= 0) return 'doi-blue';
-  if (doi < 20) return 'doi-red';
-  if (doi < 30) return 'doi-yellow';
+  if (doi <= 0)  return 'doi-blue';
+  if (doi < 20)  return 'doi-red';
+  if (doi < 30)  return 'doi-yellow';
   if (doi <= 45) return 'doi-green';
   return 'doi-blue';
 }
@@ -891,11 +992,12 @@ function renderTable() {
   const start = (state.page - 1) * state.pageSize;
   const slice = lines.slice(start, start + state.pageSize);
 
-  const tbody = document.getElementById('table-body');
-  tbody.innerHTML = slice.map((l, i) => {
-    const dc = doiClass(l.doi);
-    const rc = rowClass(l.doi);
-    return `<tr class="${rc}" id="row-${start+i}">
+  document.getElementById('table-body').innerHTML = slice.map((l, i) => {
+    const dc  = doiClass(l.doi);
+    const rc  = rowClass(l.doi);
+    const idx = start + i;
+    const itStyle = l.itExceed ? 'color:var(--warn);font-weight:600' : 'color:var(--text-muted)';
+    return `<tr class="${rc}" id="row-${idx}">
       <td><span class="badge badge-gray">${l.kho}</span></td>
       <td><span class="font-mono" style="font-size:.71875rem">${l.sku}</span></td>
       <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${l.name}">${l.name}</td>
@@ -903,50 +1005,42 @@ function renderTable() {
       <td style="text-align:right">${fmt.num(l.invClose)}</td>
       <td>
         <input type="number" class="qty-input ${l.qtyBatchChanged ? 'qty-changed' : ''}"
-          value="${l.qtyBatch}" min="0"
-          data-idx="${start+i}"
-          onchange="onQtyChange(this, ${start+i})"
-          oninput="onQtyChange(this, ${start+i})">
+          value="${l.qtyBatch}" min="0" data-idx="${idx}"
+          onchange="onQtyChange(this,${idx})" oninput="onQtyChange(this,${idx})">
       </td>
       <td style="text-align:center;color:var(--text-muted)">${l.quyCach} ${l.donVi}</td>
       <td style="text-align:right">${fmt.num(l.slNhap)}</td>
-      <td style="text-align:right">${l.donGia ? fmt.num(l.donGia) : '<span class="badge badge-yellow">Chưa có giá</span>'}</td>
+      <td style="text-align:right">${l.donGia ? fmt.num(l.donGia) : `<span class="badge badge-yellow">${t('noPriceBadge')}</span>`}</td>
       <td style="text-align:right;font-weight:600">${l.thanhTienVAT ? fmt.vnd(l.thanhTienVAT) : '—'}</td>
-      <td id="doi-cell-${start+i}">
-        <span class="doi-cell ${dc}">
-          <span class="doi-dot"></span>${fmt.doi(l.doi)}
-        </span>
+      <td id="doi-cell-${idx}">
+        <span class="doi-cell ${dc}"><span class="doi-dot"></span>${fmt.doi(l.doi)}</span>
       </td>
-      <td style="text-align:right;color:var(--text-muted)">${fmt.it(l.it)}</td>
+      <td style="text-align:right;${itStyle}" title="${l.itExceed ? 'IT > '+l.itMax : ''}">${fmt.it(l.it)}${l.itExceed ? ' ⚠️' : ''}</td>
     </tr>`;
   }).join('');
 
   document.getElementById('table-info').textContent =
-    `${total} dòng | Trang ${state.page}/${pages}`;
+    t('tableInfo', { total, page: state.page, pages });
   renderPagination(pages);
 }
 
 function onQtyChange(input, idx) {
-  const val = parseInt(input.value) || 0;
+  const val  = parseInt(input.value) || 0;
   const line = state.filtered[idx];
   if (!line) return;
-  // Also update in poLines
   const origLine = state.poLines.find(l => l.sku === line.sku && l.kho === line.kho);
   if (origLine) {
     origLine.qtyBatch = val;
     origLine.qtyBatchChanged = val !== origLine.qtyBatchSuggested;
     recalcLine(origLine);
-    // Update filtered reference too
     line.qtyBatch = val;
     line.qtyBatchChanged = origLine.qtyBatchChanged;
     recalcLine(line);
   }
   input.className = `qty-input ${line.qtyBatchChanged ? 'qty-changed' : ''}`;
-  // Update DOI cell inline
-  const dc = doiClass(line.doi);
+  const dc   = doiClass(line.doi);
   const cell = document.getElementById(`doi-cell-${idx}`);
   if (cell) cell.innerHTML = `<span class="doi-cell ${dc}"><span class="doi-dot"></span>${fmt.doi(line.doi)}</span>`;
-  // Refresh summary
   renderSummary();
 }
 
@@ -957,11 +1051,9 @@ function renderPagination(pages) {
   let start = Math.max(1, state.page - Math.floor(max/2));
   let end   = Math.min(pages, start + max - 1);
   if (end - start < max - 1) start = Math.max(1, end - max + 1);
-
   let html = `<div class="page-btn ${state.page===1?'disabled':''}" onclick="goPage(${state.page-1})">‹</div>`;
-  for (let p = start; p <= end; p++) {
+  for (let p = start; p <= end; p++)
     html += `<div class="page-btn ${p===state.page?'active':''}" onclick="goPage(${p})">${p}</div>`;
-  }
   html += `<div class="page-btn ${state.page===pages?'disabled':''}" onclick="goPage(${state.page+1})">›</div>`;
   pg.innerHTML = html;
 }
@@ -974,52 +1066,56 @@ function goPage(p) {
 }
 
 // ══════════════════════════════════════════════════════════════════
-// SUMMARY
+// SUMMARY & ALERTS
 // ══════════════════════════════════════════════════════════════════
 function renderSummary() {
-  const lines = state.poLines;
+  const lines      = state.poLines;
+  const itMax      = parseFloat(document.getElementById('it-max').value) || 1.25;
   const totalLines = lines.length;
   const needOrder  = lines.filter(l => l.qtyBatch > 0).length;
   const danger     = lines.filter(l => l.doi > 0 && l.doi < 20).length;
   const noPricing  = lines.filter(l => !l.hasPricing).length;
+  const itWarn     = lines.filter(l => l.it > itMax).length;
   const totalValue = lines.reduce((s, l) => s + (l.thanhTienVAT || 0), 0);
 
   document.getElementById('summary-stats').innerHTML = `
     <div class="stat-card">
-      <div class="stat-label">Tổng SKU</div>
+      <div class="stat-label">${t('statTotalSKU')}</div>
       <div class="stat-value">${totalLines}</div>
-      <div class="stat-sub">${needOrder} cần đặt hàng</div>
+      <div class="stat-sub">${needOrder} ${t('statNeedOrder')}</div>
     </div>
     <div class="stat-card stat-danger">
-      <div class="stat-label">DOI nguy hiểm</div>
+      <div class="stat-label">${t('statDangerDOI')}</div>
       <div class="stat-value">${danger}</div>
-      <div class="stat-sub">DOI &lt; 20 ngày</div>
+      <div class="stat-sub">${t('statDangerSub')}</div>
     </div>
     <div class="stat-card stat-success">
-      <div class="stat-label">Tổng giá trị (+VAT)</div>
+      <div class="stat-label">${t('statTotalValue')}</div>
       <div class="stat-value" style="font-size:1rem">${fmt.vnd(totalValue)}</div>
-      <div class="stat-sub">Tất cả kho</div>
+      <div class="stat-sub">${t('statAllKho')}</div>
     </div>
-    <div class="stat-card ${noPricing ? 'stat-warn' : ''}">
-      <div class="stat-label">Chưa có giá</div>
-      <div class="stat-value">${noPricing}</div>
-      <div class="stat-sub">SKU thiếu đơn giá</div>
-    </div>
-  `;
+    <div class="stat-card ${itWarn > 0 ? 'stat-warn' : ''}">
+      <div class="stat-label">${t('statITWarn')}</div>
+      <div class="stat-value">${itWarn}</div>
+      <div class="stat-sub">${t('statITWarnSub', { max: itMax })}</div>
+    </div>`;
 }
 
 function renderAlerts() {
+  const itMax  = parseFloat(document.getElementById('it-max').value) || 1.25;
   const alerts = [];
   const danger = state.poLines.filter(l => l.doi > 0 && l.doi < 20);
   if (danger.length)
-    alerts.push(`<div class="alert alert-danger">⚠️ <strong>${danger.length} SKU nguy hiểm DOI &lt; 20 ngày:</strong> ${danger.slice(0,5).map(l=>`${l.sku}@${l.kho}`).join(', ')}${danger.length>5?'…':''}</div>`);
+    alerts.push(`<div class="alert alert-danger">${t('alertDanger',{n:danger.length})} ${danger.slice(0,5).map(l=>`<strong>${l.sku}@${l.kho}</strong>`).join(', ')}${danger.length>5?'…':''}</div>`);
+  const itExceed = state.poLines.filter(l => l.it > itMax && l.qtyBatch > 0);
+  if (itExceed.length)
+    alerts.push(`<div class="alert alert-warn">${t('alertITExceed',{n:itExceed.length,max:itMax})}</div>`);
   const noPrice = state.poLines.filter(l => !l.hasPricing && l.qtyBatch > 0);
   if (noPrice.length)
-    alerts.push(`<div class="alert alert-warn">💰 <strong>${noPrice.length} SKU cần đặt nhưng chưa có đơn giá.</strong> Xuất Excel sẽ để trống ô giá trị.</div>`);
+    alerts.push(`<div class="alert alert-warn">${t('alertNoPrice',{n:noPrice.length})}</div>`);
   const noDemand = state.poLines.filter(l => l.demand === 0);
   if (noDemand.length)
-    alerts.push(`<div class="alert alert-info">ℹ️ <strong>${noDemand.length} SKU không có demand</strong> trong kỳ. Đã đặt Qty_Batch = 0.</div>`);
-
+    alerts.push(`<div class="alert alert-info">${t('alertNoDemand',{n:noDemand.length})}</div>`);
   document.getElementById('alerts-section').innerHTML = alerts.join('');
 }
 
@@ -1027,6 +1123,8 @@ function renderAlerts() {
 // CHART
 // ══════════════════════════════════════════════════════════════════
 function renderChart() {
+  const itMax     = parseFloat(document.getElementById('it-max').value) || 1.25;
+  const doiTarget = parseInt(document.getElementById('doi-target').value);
   const khoFilter = document.getElementById('chart-kho').value;
   const topN      = parseInt(document.getElementById('chart-top').value);
 
@@ -1035,18 +1133,19 @@ function renderChart() {
   lines.sort((a,b) => a.doi - b.doi);
   if (topN < 999) lines = lines.slice(0, topN);
 
-  const labels = lines.map(l => `${l.sku}\n${l.kho}`);
+  const labels  = lines.map(l => `${l.sku} / ${l.kho}`);
   const doiVals = lines.map(l => parseFloat(l.doi.toFixed(2)));
   const colors  = lines.map(l => l.doi < 20 ? '#dc2626' : l.doi < 30 ? '#d97706' : l.doi <= 45 ? '#16a34a' : '#2563eb');
 
   if (state.chart) state.chart.destroy();
   const ctx = document.getElementById('doi-chart').getContext('2d');
+  const itDOI = itMax * parseInt(document.getElementById('period-days').value);
   state.chart = new Chart(ctx, {
     type: 'bar',
     data: {
       labels,
       datasets: [{
-        label: 'DOI (ngày)',
+        label: 'DOI',
         data: doiVals,
         backgroundColor: colors,
         borderRadius: 4,
@@ -1060,34 +1159,40 @@ function renderChart() {
         legend: { display: false },
         tooltip: {
           callbacks: {
-            label: ctx => `DOI: ${ctx.raw} ngày`,
+            label: ctx => `DOI: ${ctx.raw} days`,
             afterLabel: ctx => {
               const l = lines[ctx.dataIndex];
               return [
                 `Demand: ${fmt.num(l.demand)}`,
-                `Tồn kho: ${fmt.num(l.invClose)}`,
+                `Inv: ${fmt.num(l.invClose)}`,
                 `Batch: ${fmt.num(l.qtyBatch)}`,
+                `IT: ${fmt.it(l.it)}${l.it > itMax ? ' ⚠️' : ''}`,
               ];
             }
           }
         },
         annotation: {
           annotations: {
-            target: { type:'line', xMin:30, xMax:30, borderColor:'#1d4ed8', borderWidth:1.5, borderDash:[4,4],
-              label:{ content:'Target 30d', display:true, position:'end', font:{size:10}, color:'#1d4ed8', backgroundColor:'rgba(255,255,255,0.8)' }
+            target: {
+              type:'line', xMin:doiTarget, xMax:doiTarget, borderColor:'#1d4ed8', borderWidth:1.5, borderDash:[4,4],
+              label:{ content:`Target ${doiTarget}d`, display:true, position:'end', font:{size:10}, color:'#1d4ed8', backgroundColor:'rgba(255,255,255,0.85)' }
             },
-            warn: { type:'line', xMin:20, xMax:20, borderColor:'#dc2626', borderWidth:1.5, borderDash:[4,4],
-              label:{ content:'Min 20d', display:true, position:'start', font:{size:10}, color:'#dc2626', backgroundColor:'rgba(255,255,255,0.8)' }
+            warn: {
+              type:'line', xMin:20, xMax:20, borderColor:'#dc2626', borderWidth:1.5, borderDash:[4,4],
+              label:{ content:'Min 20d', display:true, position:'start', font:{size:10}, color:'#dc2626', backgroundColor:'rgba(255,255,255,0.85)' }
+            },
+            itLine: {
+              type:'line', xMin:itDOI, xMax:itDOI, borderColor:'#d97706', borderWidth:1, borderDash:[3,3],
+              label:{ content:`IT≤${itMax}`, display:true, position:'center', font:{size:10}, color:'#d97706', backgroundColor:'rgba(255,255,255,0.85)' }
             },
           }
         }
       },
       scales: {
         x: {
-          beginAtZero: true,
-          grid: { color: '#e2e8f0' },
+          beginAtZero: true, grid: { color: '#e2e8f0' },
           ticks: { font: { size: 11 } },
-          title: { display: true, text: 'Days of Inventory (ngày)', font: { size: 11 } },
+          title: { display: true, text: 'Days of Inventory', font: { size: 11 } },
         },
         y: { ticks: { font: { size: 10 }, maxRotation: 0 }, grid: { display: false } }
       }
@@ -1096,38 +1201,23 @@ function renderChart() {
 }
 
 // ══════════════════════════════════════════════════════════════════
-// EXPORT EXCEL
+// EXPORT
 // ══════════════════════════════════════════════════════════════════
 function exportExcel() {
   const wb = XLSX.utils.book_new();
-
   const today = new Date();
-  const monthStr = `Tháng ${today.getMonth()+1}-${today.getFullYear()}`;
+  const monthStr = `${today.getMonth()+1}-${today.getFullYear()}`;
+  const colHeaders = t('exportCols');
+  const rows = [[t('exportCompany')],
+                [t('exportTitle', { month: monthStr })], [], colHeaders];
 
-  const header1 = ['CÔNG TY CỔ PHẦN DỊCH VỤ HẬU CẦN BOXME VIỆT NAM'];
-  const header2 = [`ĐƠN ĐẶT HÀNG ${monthStr.toUpperCase()}`];
-  const colHeaders = [
-    'Số PO','Kho','NCC','Mã sản phẩm (SKU)','Tên Sản Phẩm',
-    'Số Lượng (Batch)','Quy Cách Nhập Kho','Đơn Vị Nhập','Số Lượng Nhập Kho',
-    'Đơn Giá (-VAT)','Thành Tiền (-VAT)','Thuế suất VAT','Thành tiền (+VAT)',
-    'Demand 30 days','Inventory Turnover','Pending Inventory','Inventory',
-    'DOI','SL xuất trong vòng 25 ngày','Ghi Chú'
-  ];
-
-  const rows = [header1, header2, [], colHeaders];
-
-  // Group by Kho
-  const khos = ['VSIP','Lê Minh Xuân','Bình Tân','Tân Tạo','Stock'];
   let po = 1;
-  for (const kho of khos) {
-    const khoLines = state.poLines.filter(l => l.kho === kho);
-    if (!khoLines.length) continue;
-    for (const l of khoLines) {
+  for (const kho of ['VSIP','Lê Minh Xuân','Bình Tân','Tân Tạo','Stock']) {
+    for (const l of state.poLines.filter(x => x.kho === kho)) {
       rows.push([
-        `PR${String(po++).padStart(3,'0')}`,
-        l.kho, '', l.sku, l.name,
+        `PR${String(po++).padStart(3,'0')}`, l.kho, '', l.sku, l.name,
         l.qtyBatch, l.quyCach, l.donVi, l.slNhap,
-        l.donGia || '', l.thanhTien || '', l.vatRate, l.thanhTienVAT || '',
+        l.donGia||'', l.thanhTien||'', l.vatRate, l.thanhTienVAT||'',
         l.demand, l.it, 0, l.invClose,
         parseFloat(l.doi.toFixed(3)), l.demand, ''
       ]);
@@ -1137,7 +1227,7 @@ function exportExcel() {
   const ws = XLSX.utils.aoa_to_sheet(rows);
   XLSX.utils.book_append_sheet(wb, ws, 'PO');
   XLSX.writeFile(wb, `PR_NVL_${monthStr.replace(/\s/g,'_')}_PR01.xlsx`);
-  toast('Đã xuất file Excel', 'success');
+  toast(t('toastExported'), 'success');
   setStep(3);
 }
 
@@ -1149,21 +1239,18 @@ function showPhaseResults() {
   document.getElementById('phase-results').classList.remove('hidden');
   setStep(2);
 }
-
 function backToImport() {
   document.getElementById('phase-results').classList.add('hidden');
   document.getElementById('phase-import').classList.remove('hidden');
   setStep(1);
 }
-
 function switchTab(tab) {
-  ['table','chart'].forEach(t => {
-    document.getElementById('view-'+t).classList.toggle('hidden', t !== tab);
-    document.getElementById('tab-'+t).classList.toggle('active',  t === tab);
+  ['table','chart'].forEach(tp => {
+    document.getElementById('view-'+tp).classList.toggle('hidden', tp !== tab);
+    document.getElementById('tab-'+tp).classList.toggle('active', tp === tab);
   });
   if (tab === 'chart') renderChart();
 }
-
 function setStep(n) {
   [1,2,3].forEach(i => {
     const el = document.getElementById('s'+i);
@@ -1173,7 +1260,9 @@ function setStep(n) {
   });
 }
 
-// Init
+// ── INIT ──────────────────────────────────────────────────────────
+setLang(currentLang);
+buildFilterSelects();
 setStep(1);
 </script>
 </body>
