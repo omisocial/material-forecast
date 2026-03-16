@@ -18,6 +18,11 @@ const TEMPLATE_HEADERS = {
     vi: ['SKU', 'Tên sản phẩm', 'Đơn giá (-VAT)', 'Số lượng / pack', 'Đơn vị tính'],
     en: ['SKU', 'Product Name', 'Unit Price (-VAT)', 'Qty per Pack', 'Unit'],
     th: ['SKU', 'ชื่อสินค้า', 'ราคาต่อหน่วย (-VAT)', 'จำนวนต่อแพ็ค', 'หน่วย'],
+  },
+  pending: {
+    vi: ['SKU', 'Số lượng', 'NCC', 'Ngày dự kiến', 'Kho'],
+    en: ['SKU', 'Quantity', 'Supplier', 'Expected Date', 'Warehouse'],
+    th: ['SKU', 'จำนวน', 'ผู้จัดจำหน่าย', 'วันที่คาดว่า', 'คลังสินค้า'],
   }
 };
 
@@ -34,6 +39,10 @@ const TEMPLATE_SAMPLE_DATA = {
   price: [
     ['PKG-BOX-S', 'Small Box (20x15x10)', 3500, 50, 'Pcs'],
     ['PKG-TAPE', 'OPP Tape 48mm', 25000, 6, 'Roll'],
+  ],
+  pending: [
+    ['PKG-BOX-S', 500, 'NCC A', '2025-04-01', 'WH-South'],
+    ['PKG-TAPE', 1000, 'NCC B', '2025-04-05', ''],
   ]
 };
 
@@ -58,11 +67,11 @@ function generateTemplate(type) {
 
   // Create workbook
   const wb = XLSX.utils.book_new();
-  const sheetName = type === 'inv' ? 'Inventory' : type === 'aging' ? 'Aging Report' : 'Price List';
+  const sheetName = type === 'inv' ? 'Inventory' : type === 'aging' ? 'Aging Report' : type === 'pending' ? 'Pending PO' : 'Price List';
   XLSX.utils.book_append_sheet(wb, ws, sheetName);
 
   // Generate filename
-  const typeName = type === 'inv' ? 'inventory' : type === 'aging' ? 'aging' : 'price';
+  const typeName = type === 'inv' ? 'inventory' : type === 'aging' ? 'aging' : type === 'pending' ? 'pending_po' : 'price';
   const fileName = `template_${typeName}_${lang}.xlsx`;
 
   // Download

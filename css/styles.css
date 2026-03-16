@@ -246,7 +246,7 @@ body { font-family:var(--font); background:var(--bg-muted); color:var(--text); m
 .tip-icon:hover { color:var(--primary); border-color:var(--primary); background:var(--info-bg); }
 .tip-icon-upload { position:absolute; top:6px; right:6px; }
 .upload-zone { position:relative; }
-.tip-popup { position:absolute; z-index:300; max-width:320px; padding:.625rem .875rem; background:var(--text); color:white; font-size:.75rem; line-height:1.5; border-radius:var(--radius); box-shadow:0 8px 24px rgba(0,0,0,.15); pointer-events:none; opacity:0; transform:translateY(4px); transition:opacity .15s, transform .15s; }
+.tip-popup { position:absolute; z-index:300; max-width:320px; padding:.625rem .875rem; background:var(--text); color:white; font-size:.75rem; line-height:1.5; border-radius:var(--radius); box-shadow:0 8px 24px rgba(0,0,0,.15); pointer-events:auto; opacity:0; transform:translateY(4px); transition:opacity .15s, transform .15s; }
 .tip-popup.visible { opacity:1; transform:translateY(0); }
 .tip-popup.below { transform:translateY(-4px); }
 .tip-popup.below.visible { transform:translateY(0); }
@@ -268,6 +268,171 @@ body { font-family:var(--font); background:var(--bg-muted); color:var(--text); m
 .onboarding-dot { width:8px; height:8px; border-radius:50%; background:var(--border); cursor:pointer; transition:all .2s; }
 .onboarding-dot.active { background:var(--primary); width:20px; border-radius:4px; }
 .onboarding-nav { display:flex; gap:.5rem; }
+
+/* ── Pending PO Card ────────────────────────────────────────── */
+.pending-card { border:1px dashed var(--border); border-color:var(--text-sm); }
+.pending-card .card-header { gap:.5rem; }
+.badge-optional { background:var(--bg-muted); color:var(--text-sm); border:1px solid var(--border); font-size:.625rem; padding:.125rem .375rem; border-radius:99px; font-weight:500; }
+.pending-upload-row { display:flex; align-items:center; gap:.75rem; }
+.upload-zone-compact { flex:1; padding:.625rem .5rem; min-height:auto; }
+.upload-icon-sm { width:20px; height:20px; color:var(--text-sm); margin:0 auto .25rem; }
+.upload-label-sm { font-size:.6875rem; font-weight:500; }
+.pending-divider { color:var(--text-sm); font-size:.6875rem; font-weight:500; text-transform:uppercase; }
+.btn-pending-manual { white-space:nowrap; flex-shrink:0; }
+
+/* ── Pending PO Modal ───────────────────────────────────────── */
+.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:200; display:flex; align-items:center; justify-content:center; padding:1rem; }
+.modal-box { background:var(--bg-card); border-radius:var(--radius-lg); box-shadow:var(--shadow-md); max-width:700px; width:100%; max-height:85vh; display:flex; flex-direction:column; }
+.modal-header { padding:.875rem 1rem; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+.modal-header h3 { font-size:.9375rem; font-weight:600; }
+.modal-close { width:28px; height:28px; font-size:.875rem; }
+.modal-body { padding:1rem; overflow-y:auto; flex:1; }
+.modal-footer { padding:.75rem 1rem; border-top:1px solid var(--border); display:flex; justify-content:flex-end; gap:.5rem; }
+
+/* ── Pending Table in Modal ─────────────────────────────────── */
+.pending-table-wrapper { overflow-x:auto; }
+.pending-table { width:100%; border-collapse:collapse; font-size:.8125rem; }
+.pending-table th { padding:.375rem .5rem; text-align:left; font-size:.6875rem; font-weight:600; color:var(--text-muted); border-bottom:1px solid var(--border); background:var(--bg-muted); white-space:nowrap; }
+.pending-table td { padding:.375rem .5rem; border-bottom:1px solid var(--border); }
+.pending-table input { width:100%; padding:.25rem .375rem; border:1px solid var(--border); border-radius:var(--radius-sm); font-size:.75rem; min-width:80px; }
+.pending-table input:focus { border-color:var(--border-focus); outline:none; }
+.pending-table .btn-delete-row { width:28px; height:28px; display:flex; align-items:center; justify-content:center; border:none; background:transparent; cursor:pointer; color:var(--text-sm); border-radius:var(--radius-sm); transition:all .15s; font-size:.875rem; }
+.pending-table .btn-delete-row:hover { background:var(--danger-bg); color:var(--danger); }
+
+/* ── Factor Input ───────────────────────────────────────────── */
+.factor-input { width:56px; padding:.1875rem .25rem; border:1px solid var(--border); border-radius:var(--radius-sm); font-size:.75rem; text-align:center; font-weight:500; background:var(--bg-card); }
+.factor-input:focus { border-color:var(--border-focus); outline:none; box-shadow:0 0 0 2px rgba(59,130,246,.15); }
+.factor-changed { border-color:var(--primary); background:var(--info-bg); font-weight:600; }
+
+/* ══════════════════════════════════════════════════════════════════
+   MOBILE RESPONSIVE — UX Overhaul (Fitts's / Hick's / Miller's)
+   ══════════════════════════════════════════════════════════════════ */
+
+@media (max-width:639px) {
+
+  /* ── Container ─────────────────────────────────────────────── */
+  .container { padding:.5rem; }
+
+  /* ── Header ────────────────────────────────────────────────── */
+  .app-header { padding:0 .5rem; }
+
+  /* ── Config Grid — 1 col on very small, 2 col on small ──── */
+  .grid-4 { grid-template-columns:1fr; gap:.5rem; }
+  .grid-4 .input { min-height:44px; font-size:.875rem; }
+
+  /* ── Upload Cards — stack, allow text wrap ────────────────── */
+  .grid-3 { gap:.5rem; }
+  .upload-label { white-space:normal; text-align:center; }
+  .upload-sub { white-space:normal; text-align:center; }
+  .upload-zone { padding:.875rem .625rem; }
+
+  /* ── Buttons — Fitts's Law: min 44px touch zone ──────────── */
+  .btn { min-height:44px; padding:.5rem .75rem; font-size:.8125rem; justify-content:center; }
+  .btn-sm { min-height:40px; padding:.375rem .625rem; }
+
+  /* ── Forms — 44px touch targets ────────────────────────────── */
+  .select, .input { min-height:44px; font-size:.875rem; }
+
+  /* ── Stats Grid — tighter on mobile ────────────────────────── */
+  .stats-grid { gap:.375rem; }
+  .stat-card { padding:.625rem .5rem; }
+  .stat-value { font-size:1.125rem; }
+  .stat-label { font-size:.625rem; }
+  .stat-sub { font-size:.625rem; }
+
+  /* ── Alerts — better mobile readability ────────────────────── */
+  .alert { font-size:.75rem; padding:.625rem .75rem; }
+
+  /* ── Toolbar — vertical stack, full-width filters ──────────── */
+  .toolbar { flex-direction:column; align-items:stretch; gap:.375rem; padding:.625rem .75rem; }
+  .toolbar-left { flex-direction:column; gap:.375rem; }
+  .toolbar-left .select,
+  .toolbar-left .input { width:100% !important; }
+  .toolbar-right { width:100%; justify-content:stretch; }
+  .toolbar-right .btn { flex:1; }
+
+  /* ── Tabs — bigger touch targets ───────────────────────────── */
+  .tab { padding:.75rem 1rem; min-height:44px; display:flex; align-items:center; }
+
+  /* ── Pagination — fix layout + bigger buttons ──────────────── */
+  .pagination { gap:.25rem; flex-wrap:wrap; padding:.5rem .75rem; }
+  .page-btn { width:38px; height:38px; font-size:.8125rem; }
+
+  /* ── Table info + pagination wrapper ───────────────────────── */
+  .table-footer-mobile { flex-direction:column; align-items:flex-start; gap:.375rem; padding:.5rem .75rem; }
+
+  /* ── Table scroll shadow hint ──────────────────────────────── */
+  .table-wrapper { position:relative; }
+  .table-wrapper::after {
+    content:'';
+    position:absolute; top:0; right:0; bottom:0; width:24px;
+    background:linear-gradient(to right, transparent, rgba(0,0,0,.06));
+    pointer-events:none; z-index:1;
+    border-radius:0 var(--radius-lg) var(--radius-lg) 0;
+  }
+  .table-wrapper.scrolled-end::after { display:none; }
+  .table th { font-size:.625rem; padding:.375rem .5rem; }
+  .table td { font-size:.75rem; padding:.375rem .5rem; }
+
+  /* ── QTY input — slightly wider for mobile ─────────────────── */
+  .qty-input { width:64px; min-height:36px; font-size:.75rem; }
+
+  /* ── Export bar — stack vertically ──────────────────────────── */
+  .export-bar-mobile { flex-direction:column; align-items:stretch; gap:.5rem; }
+  .export-bar-mobile .btn { width:100%; justify-content:center; }
+  .export-bar-mobile .flex { flex-direction:column; gap:.375rem; width:100%; }
+  .export-bar-mobile .flex .btn { width:100%; }
+
+  /* ── Steps indicator — compact ─────────────────────────────── */
+  .step { font-size:.625rem; }
+  .step-num { width:18px; height:18px; font-size:.5625rem; }
+  .step-sep { width:12px; }
+
+  /* ── Onboarding — better mobile sizing ─────────────────────── */
+  .onboarding-modal { max-width:calc(100vw - 2rem); }
+  .onboarding-header { padding:1.25rem 1rem .625rem; }
+  .onboarding-body { padding:0 1rem .75rem; font-size:.8125rem; }
+  .onboarding-footer { padding:.75rem 1rem; }
+  .onboarding-title { font-size:1.125rem; }
+
+  /* ── Toast — full width on mobile ──────────────────────────── */
+  #toast-container { left:.5rem; right:.5rem; bottom:.5rem; }
+  .toast { max-width:100%; }
+
+  /* ── Card body padding ─────────────────────────────────────── */
+  .card-body { padding:.625rem; }
+  .card-header { padding:.625rem .75rem; }
+  .card-header h2 { font-size:.8125rem; }
+
+  /* ── Badges ─────────────────────────────────────────────────── */
+  .badge { font-size:.625rem; padding:.125rem .375rem; }
+
+  /* ── Mapping panel ─────────────────────────────────────────── */
+  .mapping-row { flex-wrap:wrap; }
+  .mapping-row .field-name { width:80px; font-size:.6875rem; }
+  .mapping-row select { min-height:40px; }
+
+  /* ── DOI cell ──────────────────────────────────────────────── */
+  .doi-cell { font-size:.75rem; }
+
+  /* ── Tip icon — slightly bigger for touch ──────────────────── */
+  .tip-icon { width:18px; height:18px; font-size:11px; }
+
+  /* ── Import action bar ─────────────────────────────────────── */
+  .import-action-mobile { flex-direction:column; align-items:stretch; gap:.5rem; }
+  .import-action-mobile .flex { width:100%; }
+  .import-action-mobile .flex .btn { flex:1; }
+  .import-action-mobile .text-sm { text-align:center; }
+}
+
+/* ── 360px ultra-small screen adjustments ────────────────────── */
+@media (max-width:374px) {
+  .stats-grid { grid-template-columns:1fr; }
+  .stat-value { font-size:1rem; }
+  .grid-4 { grid-template-columns:1fr; }
+  .step span:not(.step-num) { display:none; }
+  .lang-btn { padding:.25rem .3rem; font-size:.625rem; }
+}
 
 /* ── Print ───────────────────────────────────────────────────── */
 @media print {

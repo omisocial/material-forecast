@@ -1,5 +1,6 @@
 // ══════════════════════════════════════════════════════════════════
 // NVL Forecast Tool v2.0 — Table Renderer
+// Supports: Pending PO column, Demand Adj Factor column
 // ══════════════════════════════════════════════════════════════════
 
 const PAGE_SIZE = 50;
@@ -34,6 +35,8 @@ function renderSummary() {
   const dangerDOI = r.filter(x => x.doiAfter < 20 && x.qtyBatch > 0);
   const totalValue = needOrder.reduce((s, x) => s + x.thanhTien, 0);
   const noPrice = needOrder.filter(x => !x.hasPrice);
+  const hasPending = (state.pendingPO || []).length > 0;
+  const totalPending = hasPending ? r.reduce((s, x) => s + (x.pendingQty || 0), 0) : 0;
 
   const khos = [...new Set(r.map(x => x.kho))];
   const locale = t('locale');
@@ -53,6 +56,19 @@ function renderSummary() {
   document.getElementById('stat-noprice').innerHTML = `<div class="stat-label">${t('statNoPrice')} ${tipIcon('tipStatNoPrice')}</div>
     <div class="stat-value" style="color:${noPrice.length ? 'var(--warn)' : 'var(--success)'}">${noPrice.length}</div>
     <div class="stat-sub">${t('statNoPriceSub')}</div>`;
+
+  // Pending PO stat card (only show if there's pending data)
+  const pendingStat = document.getElementById('stat-pending');
+  if (pendingStat) {
+    if (hasPending) {
+      pendingStat.classList.remove('hidden');
+      pendingStat.innerHTML = `<div class="stat-label">${t('statPending')} ${tipIcon('tipPending')}</div>
+        <div class="stat-value" style="color:var(--primary)">${new Intl.NumberFormat(locale).format(totalPending)}</div>
+        <div class="stat-sub">${t('statPendingSub')}</div>`;
+    } else {
+      pendingStat.classList.add('hidden');
+    }
+  }
 }
 
 function renderAlerts() {
@@ -95,6 +111,7 @@ function renderTable() {
   const locale = t('locale');
   const fmt = v => new Intl.NumberFormat(locale).format(v);
   const fmtCur = v => new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(v);
+  const hasPending = (state.pendingPO || []).length > 0;
 
   // DOI helper
   const doiClass = v => v < 20 ? 'doi-red' : v < 30 ? 'doi-yellow' : v < 60 ? 'doi-green' : 'doi-blue';
@@ -103,15 +120,22 @@ function renderTable() {
 
   let html = '<table class="table"><thead><tr>';
   // Tooltip mapping for columns
-  const colTips = { demand: 'tipDemand', qtyBatch: 'tipBatch', doiAfter: 'tipDOI', it: 'tipIT', thanhTien: 'tipThanhTien' };
+  const colTips = { demand: 'tipDemand', qtyBatch: 'tipBatch', doiAfter: 'tipDOI', it: 'tipIT', thanhTien: 'tipThanhTien', pendingQty: 'tipPending', demandFactor: 'tipFactor' };
 
   const cols = [
     ['kho', t('thKho')], ['name', t('thName')], ['sku', 'SKU'],
-    ['demand', t('thDemand')], ['stock', t('thInventory')],
+    ['demand', t('thDemand')], ['demandFactor', t('thFactor')],
+    ['stock', t('thInventory')],
+  ];
+  // Conditionally add Pending column
+  if (hasPending) {
+    cols.push(['pendingQty', t('thPending')]);
+  }
+  cols.push(
     ['qtyBatch', t('thBatch')], ['quyCach', t('thQuyCach')],
     ['slNhap', t('thSLNhap')], ['donGia', t('thDonGia')],
     ['thanhTien', t('thThanhTien')], ['doiAfter', t('thDOI')], ['it', t('thIT')]
-  ];
+  );
 
   cols.forEach(([col, label]) => {
     const sorted = state.sortCol === col;
@@ -126,14 +150,23 @@ function renderTable() {
     const rowClass = r.doiAfter < 20 && r.qtyBatch > 0 ? 'danger' : r.doiAfter < 30 && r.qtyBatch > 0 ? 'warn' : '';
     const dc = doiClass(r.doiAfter);
     const changedClass = r.qtyBatch !== r.suggestedBatch ? 'qty-changed' : '';
+    const factorChanged = (r.demandFactor || 1.0) !== 1.0;
 
     html += `<tr class="${rowClass}">
       <td><span class="badge badge-blue">${r.kho}</span></td>
       <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.name}">${r.name}</td>
       <td><code style="font-size:.75rem">${r.sku}</code></td>
       <td style="text-align:right">${fmt(r.demand)}</td>
-      <td style="text-align:right">${fmt(r.stock)}</td>
-      <td><input type="number" class="qty-input ${changedClass}" value="${r.qtyBatch}" min="0" onchange="onQtyChange(${globalIdx},this.value)"></td>
+      <td><input type="number" class="factor-input ${factorChanged ? 'factor-changed' : ''}" value="${r.demandFactor || 1.0}" min="0" max="5" step="0.05" onchange="onFactorChange(${globalIdx},this.value)"></td>
+      <td style="text-align:right">${fmt(r.stock)}</td>`;
+
+    // Pending column (only if pending data exists)
+    if (hasPending) {
+      const pq = r.pendingQty || 0;
+      html += `<td style="text-align:right;color:${pq > 0 ? 'var(--primary)' : 'var(--text-sm)'}">${pq > 0 ? fmt(pq) : '—'}</td>`;
+    }
+
+    html += `<td><input type="number" class="qty-input ${changedClass}" value="${r.qtyBatch}" min="0" onchange="onQtyChange(${globalIdx},this.value)"></td>
       <td style="text-align:center">${r.quyCach}${r.donVi ? '/' + r.donVi : ''}</td>
       <td style="text-align:right">${fmt(r.slNhap)}</td>
       <td style="text-align:right">${r.hasPrice ? fmtCur(r.donGia) : '<span class="badge badge-yellow">' + t('noPriceBadge') + '</span>'}</td>

@@ -1,5 +1,6 @@
 // ══════════════════════════════════════════════════════════════════
 // NVL Forecast Tool v2.0 — Export Module
+// Supports: Pending PO qty, Demand Factor, Adjusted Demand
 // ══════════════════════════════════════════════════════════════════
 
 function exportExcel() {
@@ -36,8 +37,11 @@ function exportExcel() {
         state.vat + '%', // VAT
         r.thanhTien, // Amount +VAT
         r.demand, // Demand
+        r.demandFactor || 1.0, // Demand Factor
+        Math.round(r.adjustedDemand || r.demand), // Adjusted Demand
         r.it, // IT
-        r.pendingInv, // Pending
+        r.pendingQty || 0, // Pending PO Qty
+        r.pendingInv, // Pending Inventory (from Aging)
         r.stock, // Inventory
         r.doiAfter, // DOI
         r.outbound25, // 25d outbound

@@ -75,6 +75,31 @@ const COLUMN_ALIASES = {
       required: false,
       aliases: ['Đơn vị tính', 'Đơn vị', 'don_vi', 'Unit', 'หน่วย', 'UOM'],
     },
+  },
+  pending: {
+    sku: {
+      required: true,
+      aliases: ['SKU', 'Sku', 'sku', 'Mã sản phẩm', 'Mã SP', 'Seller SKU',
+                'รหัสสินค้า', 'Product Code', 'Item Code'],
+    },
+    qtyPending: {
+      required: true,
+      aliases: ['Qty Pending', 'Qty_Pending', 'SL chờ', 'Số lượng chờ', 'Pending Qty',
+                'จำนวนรอ', 'Quantity Pending', 'PO Qty', 'SL PO'],
+    },
+    supplier: {
+      required: false,
+      aliases: ['NCC', 'Supplier', 'Nhà cung cấp', 'ผู้จัดจำหน่าย', 'Vendor'],
+    },
+    expectedDate: {
+      required: false,
+      aliases: ['Expected Date', 'Ngày dự kiến', 'วันที่คาดว่า', 'ETA', 'Delivery Date',
+                'Ngày giao', 'Due Date'],
+    },
+    warehouse: {
+      required: false,
+      aliases: ['Warehouse', 'Kho', 'Kho hàng', 'คลังสินค้า', 'WH', 'FC'],
+    },
   }
 };
 
@@ -126,7 +151,8 @@ function detectHeaderRow(rawRows) {
  * Returns: { mapping, confidence, unmatched }
  */
 function detectColumns(fileHeaders, fileType) {
-  const aliases = COLUMN_ALIASES[fileType];
+  const actualType = fileType === 'inv' ? 'inventory' : fileType;
+  const aliases = COLUMN_ALIASES[actualType];
   if (!aliases) return { mapping: {}, confidence: 0, unmatched: [] };
 
   const normalizedHeaders = fileHeaders.map(h => String(h || '').trim());

@@ -6,6 +6,8 @@
  * Initialize tooltips on all [data-tip] elements
  * Call this after rendering dynamic content (tables, stats)
  */
+let tipHideTimeout;
+
 function initTooltips() {
   // Remove any existing tooltip popup
   const existing = document.getElementById('tip-popup');
@@ -17,8 +19,13 @@ function initTooltips() {
     el._tipBound = true;
 
     // Desktop: hover
-    el.addEventListener('mouseenter', showTip);
-    el.addEventListener('mouseleave', hideTip);
+    el.addEventListener('mouseenter', function() {
+      clearTimeout(tipHideTimeout);
+      showTip.call(this);
+    });
+    el.addEventListener('mouseleave', function() {
+      tipHideTimeout = setTimeout(hideTip, 300);
+    });
     // Mobile: click toggle
     el.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -26,13 +33,18 @@ function initTooltips() {
       if (popup && popup._targetEl === el) {
         hideTip();
       } else {
+        clearTimeout(tipHideTimeout);
         showTip.call(el);
       }
     });
   });
 
   // Close on click outside
-  document.addEventListener('click', hideTip);
+  document.addEventListener('click', (e) => {
+    // Don't close if clicking inside the tooltip popup
+    if (e.target.closest('#tip-popup')) return;
+    hideTip();
+  });
 }
 
 function showTip() {
@@ -45,9 +57,15 @@ function showTip() {
   const popup = document.createElement('div');
   popup.id = 'tip-popup';
   popup.className = 'tip-popup';
-  popup.textContent = text;
+  popup.innerHTML = text; // Use innerHTML to allow links
   popup._targetEl = this;
   document.body.appendChild(popup);
+
+  // Keep tooltip open when hovering over it
+  popup.addEventListener('mouseenter', () => clearTimeout(tipHideTimeout));
+  popup.addEventListener('mouseleave', () => {
+    tipHideTimeout = setTimeout(hideTip, 300);
+  });
 
   // Position relative to icon
   const rect = this.getBoundingClientRect();

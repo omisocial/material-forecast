@@ -17,7 +17,7 @@
       <span class="logo-text" data-i18n="appTitle">Material Smart</span>
     </div>
     <div class="header-right">
-      <button class="btn-icon btn-help" onclick="showOnboarding(true)" aria-label="Guide" data-i18n="btnHelp">❓</button>
+      <button class="btn-icon btn-help" onclick="window.location.href='guide.html'" aria-label="Guide" data-i18n="btnHelp">❓</button>
       <div class="lang-switcher">
         <button class="lang-btn active" id="lang-vi" onclick="setLang('vi')">VI</button>
         <button class="lang-btn" id="lang-en" onclick="setLang('en')">EN</button>
@@ -155,9 +155,42 @@
         </div>
       </div>
 
+      <!-- Pending PO (Optional) -->
+      <div class="section">
+        <div class="card pending-card">
+          <div class="card-header">
+            <span style="font-size:1.125rem">📋</span>
+            <h2 data-i18n="pendingTitle">Pending PO</h2>
+            <span class="badge badge-optional" data-i18n="pendingOptional">Không bắt buộc</span>
+          </div>
+          <div class="card-body">
+            <div class="pending-upload-row">
+              <div class="upload-zone upload-zone-compact" id="zone-pending"
+                   onclick="document.getElementById('file-pending').click()"
+                   ondragover="dragOver(event,'zone-pending')"
+                   ondragleave="dragLeave('zone-pending')"
+                   ondrop="drop(event,'pending')">
+                <div class="upload-icon-sm">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M12 16V4m0 0l-4 4m4-4l4 4"/><path d="M20 16v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4"/></svg>
+                </div>
+                <div class="upload-label-sm" id="pending-label" data-i18n="pendingUploadLabel">Upload file Pending PO</div>
+                <div class="upload-sub" data-i18n="pendingHint">Cột: SKU, Số lượng, NCC (tuỳ chọn)</div>
+                <input type="file" id="file-pending" accept=".xlsx,.xls,.csv" onchange="handleFile(event,'pending')">
+              </div>
+              <div class="pending-divider"><span data-i18n="pendingOr">hoặc</span></div>
+              <button class="btn btn-outline btn-pending-manual" onclick="openPendingModal()">
+                <span>✏️</span> <span data-i18n="pendingManual">Nhập tay</span>
+              </button>
+            </div>
+            <div id="pending-status" class="mt-2"></div>
+            <button class="btn-template" onclick="generateTemplate('pending')" data-i18n="btnDownloadTemplate">📥 Tải file mẫu</button>
+          </div>
+        </div>
+      </div>
+
       <!-- Action Buttons -->
       <div class="card section">
-        <div class="card-body flex items-center justify-between">
+        <div class="card-body flex items-center justify-between import-action-mobile">
           <span id="import-hint" class="text-sm text-muted" data-i18n="importHint">Upload đủ 3 file để tính toán</span>
           <div class="flex gap-2">
             <button class="btn btn-outline" onclick="loadDemo()">
@@ -181,6 +214,7 @@
         <div class="stat-card stat-danger" id="stat-danger"></div>
         <div class="stat-card" id="stat-value"></div>
         <div class="stat-card" id="stat-noprice"></div>
+        <div class="stat-card hidden" id="stat-pending"></div>
       </div>
 
       <!-- Alerts -->
@@ -208,7 +242,7 @@
             </div>
           </div>
           <div class="table-wrapper" id="table-body"></div>
-          <div class="flex items-center justify-between" style="padding:.5rem 1rem">
+          <div class="flex items-center justify-between table-footer-mobile" style="padding:.5rem 1rem">
             <span class="text-xs text-muted" id="table-info"></span>
             <div id="pagination" class="pagination"></div>
           </div>
@@ -236,7 +270,7 @@
 
       <!-- Export Actions -->
       <div class="card section no-print">
-        <div class="card-body flex items-center justify-between flex-wrap gap-2">
+        <div class="card-body flex items-center justify-between flex-wrap gap-2 export-bar-mobile">
           <button class="btn btn-ghost" onclick="backToImport()">
             <span data-i18n="btnBack">← Import file mới</span>
           </button>
@@ -252,6 +286,40 @@
       </div>
     </div>
   </main>
+
+  <!-- ─── Pending PO Manual Entry Modal ─────────────────── -->
+  <div id="pending-modal" class="modal-overlay hidden">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 data-i18n="pendingModalTitle">📋 Nhập Pending PO</h3>
+        <button class="btn-icon modal-close" onclick="closePendingModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="pending-table-wrapper">
+          <table class="pending-table" id="pending-table">
+            <thead>
+              <tr>
+                <th>SKU</th>
+                <th data-i18n="pendingColQty">Số lượng</th>
+                <th data-i18n="pendingColNCC">NCC</th>
+                <th data-i18n="pendingColDate">Ngày dự kiến</th>
+                <th data-i18n="pendingColWH">Kho</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="pending-rows"></tbody>
+          </table>
+        </div>
+        <button class="btn btn-ghost btn-sm mt-2" onclick="addPendingRow()">
+          <span>➕</span> <span data-i18n="pendingAddRow">Thêm dòng</span>
+        </button>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closePendingModal()" data-i18n="pendingCancel">Huỷ</button>
+        <button class="btn btn-primary" onclick="savePendingManual()" data-i18n="pendingSave">Lưu</button>
+      </div>
+    </div>
+  </div>
 
   <div id="toast-container"></div>
 

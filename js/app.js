@@ -5,6 +5,7 @@
 // Central state object
 const state = {
   inv: [], aging: [], price: [],
+  pendingPO: [],                // NEW: Pending PO data
   results: [], filteredResults: [],
   filesReady: { inv: false, aging: false, price: false },
   doiTarget: 45, itMax: 6, vat: 8, period: 30,
@@ -121,6 +122,7 @@ function backToImport() {
 
   // Reset state
   state.inv = []; state.aging = []; state.price = [];
+  state.pendingPO = [];  // Reset pending PO
   state.results = []; state.filteredResults = [];
   state.filesReady = { inv: false, aging: false, price: false };
   state._parseData = {};
@@ -133,12 +135,17 @@ function backToImport() {
     const titleKey = type === 'inv' ? 'invTitle' : type === 'aging' ? 'agingTitle' : 'priceTitle';
     document.getElementById(labelId).textContent = t(titleKey);
     document.getElementById(statusId).innerHTML = `<span class="text-xs text-muted">${t(type === 'inv' ? 'invHint' : type === 'aging' ? 'agingHint' : 'priceHint')}</span>`;
-    // Remove mapping and validation panels
     const mp = document.getElementById(type + '-mapping');
     if (mp) mp.remove();
     const vp = document.getElementById('val-panel-' + type);
     if (vp) vp.remove();
   });
+
+  // Reset pending upload zone
+  const pendingZone = document.getElementById('zone-pending');
+  if (pendingZone) pendingZone.classList.remove('done', 'error');
+  const pendingStatus = document.getElementById('pending-status');
+  if (pendingStatus) pendingStatus.innerHTML = '';
 
   document.getElementById('btn-calculate').disabled = true;
   document.getElementById('import-hint').textContent = t('importHint');
@@ -150,4 +157,85 @@ document.addEventListener('DOMContentLoaded', () => {
   setLang(currentLang);
   initTooltips();
   showOnboarding();
+
+  // Table scroll shadow: hide gradient when scrolled to end
+  const tableBody = document.getElementById('table-body');
+  if (tableBody) {
+    tableBody.addEventListener('scroll', () => {
+      const atEnd = tableBody.scrollLeft + tableBody.clientWidth >= tableBody.scrollWidth - 2;
+      tableBody.classList.toggle('scrolled-end', atEnd);
+    });
+  }
 });
+
+// ══════════════════════════════════════════════════════════════════
+// Pending PO Modal Functions
+// ══════════════════════════════════════════════════════════════════
+
+function openPendingModal() {
+  const modal = document.getElementById('pending-modal');
+  modal.classList.remove('hidden');
+  const rows = document.getElementById('pending-rows');
+  // Pre-populate from existing manual entries if any, otherwise add 3 empty rows
+  if (rows.children.length === 0) {
+    for (let i = 0; i < 3; i++) addPendingRow();
+  }
+}
+
+function closePendingModal() {
+  document.getElementById('pending-modal').classList.add('hidden');
+}
+
+function addPendingRow() {
+  const tbody = document.getElementById('pending-rows');
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><input type="text" placeholder="SKU" class="pending-sku"></td>
+    <td><input type="number" placeholder="0" min="0" class="pending-qty"></td>
+    <td><input type="text" placeholder="${t('pendingColNCC')}" class="pending-ncc"></td>
+    <td><input type="date" class="pending-date"></td>
+    <td><input type="text" placeholder="${t('pendingColWH')}" class="pending-wh"></td>
+    <td><button class="btn-delete-row" onclick="deletePendingRow(this)">×</button></td>
+  `;
+  tbody.appendChild(tr);
+}
+
+function deletePendingRow(btn) {
+  btn.closest('tr').remove();
+}
+
+function savePendingManual() {
+  const rows = document.querySelectorAll('#pending-rows tr');
+  const manualEntries = [];
+  rows.forEach(tr => {
+    const sku = tr.querySelector('.pending-sku')?.value?.trim();
+    const qty = parseFloat(tr.querySelector('.pending-qty')?.value) || 0;
+    const supplier = tr.querySelector('.pending-ncc')?.value?.trim() || '';
+    const expectedDate = tr.querySelector('.pending-date')?.value || '';
+    const warehouse = tr.querySelector('.pending-wh')?.value?.trim() || '';
+    if (sku && qty > 0) {
+      manualEntries.push({ sku, qty, supplier, expectedDate, warehouse });
+    }
+  });
+
+  // Merge with existing pending data (from file upload)
+  // Remove previous manual entries (keep file-sourced ones)
+  state.pendingPO = state.pendingPO.filter(p => p._source === 'file');
+  manualEntries.forEach(e => {
+    e._source = 'manual';
+    state.pendingPO.push(e);
+  });
+
+  closePendingModal();
+
+  // Update pending status display
+  const total = state.pendingPO.length;
+  if (total > 0) {
+    const zone = document.getElementById('zone-pending');
+    if (zone) zone.classList.add('done');
+    const statusEl = document.getElementById('pending-status');
+    if (statusEl) statusEl.innerHTML = `<span style="color:var(--success)">${t('pendingSaved', { n: total })}</span>`;
+  }
+
+  toast(t('pendingSaved', { n: manualEntries.length }), 'success');
+}

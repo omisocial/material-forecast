@@ -14,6 +14,26 @@ function saveWarehouseMap(userOverrides) {
   localStorage.setItem('nvl-wh-map', JSON.stringify(userOverrides));
 }
 
+// Default Boxme Warehouse mappings
+const DEFAULT_WH_MAP = {
+  'BMVN_HCM_BTN': 'Boxme Binh Tan - Ho Chi Minh',
+  'BMVN_HCM_TT': 'Boxme Tan Tao - Ho Chi Minh',
+  'BMVN_HCM_TP': 'Boxme Tan Phu - Ho Chi Minh',
+  'BMVN_HN_LB': 'Boxme Long Bien - Ha Noi',
+  'BMVN_HN_DA': 'Boxme Dong Anh - Ha Noi',
+  'BMPH_MNL_TG': 'Boxme Taguig - Manila',
+  'BMTH_BKK_SP': 'Boxme Samut Prakan - Bangkok'
+};
+
+// Clean number parser to handle comma formats like "1,000"
+function parseCleanFloat(val) {
+  if (val === undefined || val === null || val === '') return 0;
+  if (typeof val === 'number') return val;
+  const cleaned = String(val).replace(/,/g, '').trim();
+  const num = parseFloat(cleaned);
+  return isNaN(num) ? 0 : num;
+}
+
 // Resolve warehouse name: user overrides → raw value (auto-accept)
 // Never returns null — any warehouse from import is valid
 function resolveWarehouse(code) {
@@ -21,12 +41,22 @@ function resolveWarehouse(code) {
   const trimmed = String(code).trim();
   if (!trimmed) return '';
   const map = getWarehouseMap();
-  // Check exact match in user overrides
+  
+  // 1. Check exact match in user overrides
   if (map[trimmed]) return map[trimmed];
-  // Check partial match in user overrides (for coded warehouse names like BMVN_HCM_BTN)
+  // 2. Check partial match in user overrides (for coded warehouse names like BMVN_HCM_BTN)
   for (const [key, val] of Object.entries(map)) {
     if (trimmed.toLowerCase() === key.toLowerCase()) return val;
   }
+  
+  // 3. Fallback to default Boxme Mappings
+  if (DEFAULT_WH_MAP[trimmed]) return DEFAULT_WH_MAP[trimmed];
+  for (const [key, val] of Object.entries(DEFAULT_WH_MAP)) {
+    if (trimmed.toLowerCase().includes(key.toLowerCase()) || val.toLowerCase().includes(trimmed.toLowerCase())) {
+        return val;
+    }
+  }
+
   // Auto-accept: use the raw value as-is (trimmed)
   return trimmed;
 }
@@ -97,16 +127,16 @@ function parseFile(file, type) {
 
 // ── Mapping UI ──────────────────────────────────────────────────
 function showMappingUI(type, detection, rows, filename, displayHeaders, originalHeaders) {
-  const zoneId = { inv: 'zone-inv', aging: 'zone-aging', price: 'zone-price' }[type];
-  const statusId = { inv: 'inv-status', aging: 'aging-status', price: 'price-status' }[type];
-  const labelId = { inv: 'inv-label', aging: 'aging-label', price: 'price-label' }[type];
-  const mappingId = { inv: 'inv-mapping', aging: 'aging-mapping', price: 'price-mapping' }[type];
+  const zoneId = { inv: 'zone-inv', aging: 'zone-aging', price: 'zone-price', pending: 'zone-pending' }[type];
+  const statusId = { inv: 'inv-status', aging: 'aging-status', price: 'price-status', pending: 'pending-status' }[type];
+  const labelId = { inv: 'inv-label', aging: 'aging-label', price: 'price-label', pending: 'pending-label' }[type];
+  const mappingId = { inv: 'inv-mapping', aging: 'aging-mapping', price: 'price-mapping', pending: 'pending-mapping' }[type];
 
   // Update zone visual
   const zone = document.getElementById(zoneId);
   zone.classList.remove('error');
   zone.classList.add('done');
-  document.getElementById(labelId).textContent = t('fileLabel', { name: filename });
+  document.getElementById(labelId).textContent = type === 'pending' ? t('pendingTitle') + ' — ' + filename : t('fileLabel', { name: filename });
   document.getElementById(statusId).innerHTML =
     `<span style="color:var(--success)">${t('fileRecords', { n: rows.length })}</span>`;
 
@@ -118,11 +148,11 @@ function showMappingUI(type, detection, rows, filename, displayHeaders, original
   const confClass = detection.confidence >= 80 ? 'confidence-high' : detection.confidence >= 50 ? 'confidence-med' : 'confidence-low';
   const aliases = COLUMN_ALIASES[type === 'inv' ? 'inventory' : type];
 
-  let html = `<div class="mapping-panel" id="${mappingId}">`;
-  html += `<div class="mapping-header">
+  let html = `<details class="mapping-panel" id="${mappingId}" ${detection.confidence < 100 ? 'open' : ''}>`;
+  html += `<summary class="mapping-header" style="cursor:pointer; user-select:none; outline:none; list-style:none;">
     <span style="font-size:.75rem;font-weight:600">${t('mappingTitle')}</span>
     <span class="confidence ${confClass}">${t('mappingConfidence')}: ${detection.confidence}%</span>
-  </div>`;
+  </summary>`;
 
   for (const [fieldName, config] of Object.entries(aliases)) {
     const mapped = detection.mapping[fieldName];
@@ -142,12 +172,17 @@ function showMappingUI(type, detection, rows, filename, displayHeaders, original
     <button class="btn btn-primary btn-sm" onclick="confirmMapping('${type}')">${t('mappingConfirm')}</button>
     <button class="btn btn-outline btn-sm" onclick="resetMapping('${type}')">${t('mappingReset')}</button>
   </div>`;
-  html += '</div>';
+  html += '</details>';
 
   // Insert/replace mapping panel
   const existingPanel = document.getElementById(mappingId);
   if (existingPanel) existingPanel.remove();
   document.getElementById(statusId).insertAdjacentHTML('afterend', html);
+
+  // Auto-confirm if confidence is 100%
+  if (detection.confidence === 100) {
+    setTimeout(() => confirmMapping(type), 50);
+  }
 }
 
 function onMappingChange(type) {
@@ -198,7 +233,10 @@ function confirmMapping(type) {
   }
 
   // Apply mapping to normalize data (use originalHeaders for data key lookup)
-  const normalized = applyColumnMapping(rows, finalMapping, originalHeaders);
+  let normalized = applyColumnMapping(rows, finalMapping, originalHeaders);
+
+  // Quick cleanup: Ignore summary/total rows with empty SKUs
+  normalized = normalized.filter(r => r.sku && String(r.sku).trim() !== '');
 
   // Run data validation
   const validation = validateData(normalized, type);
@@ -228,8 +266,11 @@ function validateData(rows, type) {
     const numericFields = ['outbound', 'close', 'opening', 'inbound'];
     rows.forEach((r, i) => {
       for (const field of numericFields) {
-        if (r[field] !== undefined && r[field] !== '' && isNaN(Number(r[field]))) {
-          errors.push(t('valNotNumber', { row: i + 1, col: field, val: r[field] }));
+        if (r[field] !== undefined && r[field] !== '') {
+          const cleanVal = String(r[field]).replace(/,/g, '').trim();
+          if (isNaN(Number(cleanVal))) {
+            errors.push(t('valNotNumber', { row: i + 1, col: field, val: r[field] }));
+          }
         }
       }
     });
@@ -237,7 +278,7 @@ function validateData(rows, type) {
     // Check for negative values
     rows.forEach((r, i) => {
       for (const field of numericFields) {
-        const val = Number(r[field]);
+        const val = parseCleanFloat(r[field]);
         if (!isNaN(val) && val < 0) {
           warnings.push(t('valNegativeStock', { row: i + 1, col: field, val: val }));
         }
@@ -255,7 +296,7 @@ function validateData(rows, type) {
     if (dupes > 0) warnings.push(t('valDuplicateSKU', { n: dupes }));
 
     // Zero demand
-    const zeroDemand = rows.filter(r => Number(r.outbound) === 0).length;
+    const zeroDemand = rows.filter(r => parseCleanFloat(r.outbound) === 0).length;
     if (zeroDemand > 0) info.push(t('valZeroDemand', { n: zeroDemand }));
 
   } else if (type === 'aging') {
@@ -270,8 +311,22 @@ function validateData(rows, type) {
       if (!r.sku || String(r.sku).trim() === '') {
         errors.push(t('valEmptySKU', { row: i + 1 }));
       }
-      if (r.unitPrice !== undefined && r.unitPrice !== '' && isNaN(Number(r.unitPrice))) {
-        errors.push(t('valNotNumber', { row: i + 1, col: 'unitPrice', val: r.unitPrice }));
+      if (r.unitPrice !== undefined && r.unitPrice !== '') {
+        const cleanVal = String(r.unitPrice).replace(/,/g, '').trim();
+        if (isNaN(Number(cleanVal))) {
+          errors.push(t('valNotNumber', { row: i + 1, col: 'unitPrice', val: r.unitPrice }));
+        }
+      }
+    });
+
+  } else if (type === 'pending') {
+    rows.forEach((r, i) => {
+      if (!r.sku || String(r.sku).trim() === '') {
+        errors.push(t('valEmptySKU', { row: i + 1 }));
+      }
+      const qty = parseCleanFloat(r.qty);
+      if (qty <= 0) {
+        warnings.push(`Row ${i + 1}: Quantity is zero or negative (${r.qty})`);
       }
     });
   }
@@ -316,12 +371,12 @@ function showValidationPanel(type, validation) {
 }
 
 function insertAfterMapping(type, html) {
-  const mappingId = { inv: 'inv-mapping', aging: 'aging-mapping', price: 'price-mapping' }[type];
+  const mappingId = { inv: 'inv-mapping', aging: 'aging-mapping', price: 'price-mapping', pending: 'pending-mapping' }[type];
   const mappingPanel = document.getElementById(mappingId);
   if (mappingPanel) {
     mappingPanel.insertAdjacentHTML('afterend', html);
   } else {
-    const statusId = { inv: 'inv-status', aging: 'aging-status', price: 'price-status' }[type];
+    const statusId = { inv: 'inv-status', aging: 'aging-status', price: 'price-status', pending: 'pending-status' }[type];
     document.getElementById(statusId).insertAdjacentHTML('afterend', html);
   }
 }
@@ -336,11 +391,11 @@ function processNormalizedData(normalized, type) {
       return {
         SKU: String(r.sku || '').trim(),
         'Product name': String(r.name || r.sku || '').trim(),
-        Opening: parseFloat(r.opening) || 0,
-        Inbound: parseFloat(r.inbound) || 0,
+        Opening: parseCleanFloat(r.opening),
+        Inbound: parseCleanFloat(r.inbound),
         Return: 0,
-        Outbound: parseFloat(r.outbound) || 0,
-        Close: parseFloat(r.close) || 0,
+        Outbound: parseCleanFloat(r.outbound),
+        Close: parseCleanFloat(r.close),
         Warehouse: resolved,
         _rawWarehouse: whRaw,
       };
@@ -360,7 +415,7 @@ function processNormalizedData(normalized, type) {
       // Map aging buckets
       if (r._agingBuckets) {
         for (const [name, val] of Object.entries(r._agingBuckets)) {
-          row[name] = parseFloat(val) || 0;
+          row[name] = parseCleanFloat(val);
         }
       }
       return row;
@@ -371,12 +426,36 @@ function processNormalizedData(normalized, type) {
   } else if (type === 'price') {
     const processed = normalized.map(r => ({
       SKU: String(r.sku || '').trim(),
-      'Đơn giá (-VAT)': parseFloat(r.unitPrice) || 0,
-      'Số lượng / pack': parseFloat(r.packQty) || 1,
+      'Đơn giá (-VAT)': parseCleanFloat(r.unitPrice),
+      'Số lượng / pack': parseCleanFloat(r.packQty) || 1,
       'Đơn vị tính': String(r.unit || 'Cái'),
     }));
     state.price = processed;
     state.filesReady.price = true;
+
+  } else if (type === 'pending') {
+    // Parse pending PO data from file upload
+    const processed = normalized.map(r => ({
+      sku: String(r.sku || '').trim(),
+      qty: parseCleanFloat(r.qty),
+      supplier: String(r.supplier || '').trim(),
+      expectedDate: String(r.expectedDate || '').trim(),
+      warehouse: r.warehouse ? resolveWarehouse(String(r.warehouse).trim()) : '',
+      _source: 'file',
+    })).filter(r => r.sku && r.qty > 0);
+
+    // Merge with manual entries (keep both)
+    state.pendingPO = [
+      ...state.pendingPO.filter(p => p._source === 'manual'),
+      ...processed,
+    ];
+
+    // Update UI
+    const zone = document.getElementById('zone-pending');
+    if (zone) zone.classList.add('done');
+    const statusEl = document.getElementById('pending-status');
+    if (statusEl) statusEl.innerHTML = `<span style="color:var(--success)">${t('pendingSaved', { n: processed.length })}</span>`;
+    toast(t('pendingSaved', { n: processed.length }), 'success');
   }
 
   checkAllReady();
@@ -463,7 +542,7 @@ function showFileError(type, msg) {
   const zone = document.getElementById('zone-' + type);
   zone.classList.remove('done');
   zone.classList.add('error');
-  const statusId = { inv: 'inv-status', aging: 'aging-status', price: 'price-status' }[type];
+  const statusId = { inv: 'inv-status', aging: 'aging-status', price: 'price-status', pending: 'pending-status' }[type];
   document.getElementById(statusId).innerHTML =
     `<span style="color:var(--danger)">❌ ${msg}</span>`;
   toast(msg, 'error');

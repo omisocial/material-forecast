@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="vi" id="html-root">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Material Smart — Guide</title>
+  <meta name="description" content="Discover Material Smart: The automated material forecasting tool that eliminates manual Excel work.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    /* Guide-specific custom tailwind-like utility overrides for clean layout */
+    .hero-section {
+      padding: 4rem 1rem;
+      text-align: center;
+      background: linear-gradient(135deg, var(--bg-muted) 0%, #ebf8ff 100%);
+      border-bottom: 1px solid var(--border);
+    }
+    .hero-badge {
+      display: inline-block;
+      padding: 0.375rem 0.75rem;
+      background: var(--info-bg);
+      color: var(--primary);
+      border-radius: 99px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+    }
+    .hero-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.2;
+      margin-bottom: 1rem;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+      letter-spacing: -0.02em;
+    }
+    .hero-desc {
+      font-size: 1.125rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      max-width: 600px;
+      margin: 0 auto 2rem;
+    }
+    .cta-btn {
+      font-size: 1rem;
+      padding: 0.875rem 1.5rem;
+      height: auto;
+      box-shadow: 0 4px 14px 0 rgba(29, 78, 216, 0.39);
+      transition: all 0.2s ease;
+    }
+    .cta-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(29, 78, 216, 0.23);
+    }
+    
+    .guide-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 4rem 1rem;
+    }
+    .section-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+    .feature-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+      margin-bottom: 4rem;
+    }
+    @media (min-width: 768px) {
+      .feature-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+      .hero-title { font-size: 3.5rem; }
+    }
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow 0.2s ease;
+    }
+    .feature-card:hover {
+      box-shadow: var(--shadow-md);
+    }
+    .feature-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius);
+      background: var(--info-bg);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      margin-bottom: 1rem;
+    }
+    .feature-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    .feature-text {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+    
+    .methodology-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      margin-top: 2rem;
+    }
+    .meth-item {
+      margin-bottom: 1.5rem;
+    }
+    .meth-item:last-child {
+      margin-bottom: 0;
+    }
+    .meth-label {
+      font-weight: 700;
+      font-size: 1.125rem;
+      color: var(--primary);
+      margin-bottom: 0.25rem;
+    }
+    
+    .site-footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem 1rem;
+      text-align: center;
+      color: var(--text-sm);
+      font-size: 0.875rem;
+    }
+  </style>
+</head>
+<body>
+  <!-- ─── Header ──────────────────────────────────────────────── -->
+  <header class="app-header">
+    <div class="logo">
+      <svg viewBox="0 0 28 28" fill="none"><rect width="28" height="28" rx="6" fill="#1d4ed8"/><path d="M7 8h14v3H7zm0 5h14v3H7zm0 5h10v3H7z" fill="#fff" opacity=".9"/></svg>
+      <span class="logo-text" data-i18n="appTitle">Material Smart</span>
+    </div>
+    <div class="header-right">
+      <div class="lang-switcher">
+        <button class="lang-btn active" id="lang-vi" onclick="setLang('vi')">VI</button>
+        <button class="lang-btn" id="lang-en" onclick="setLang('en')">EN</button>
+        <button class="lang-btn" id="lang-th" onclick="setLang('th')">TH</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ─── Hero Section ────────────────────────────────────────── -->
+  <section class="hero-section">
+    <div class="container">
+      <span class="hero-badge" data-i18n="heroBadge">Giới thiệu công cụ</span>
+      <h1 class="hero-title" data-i18n="heroTitle">Đừng đếm Excel thủ công nữa.</h1>
+      <p class="hero-desc" data-i18n="heroDesc">Material Smart tự động đồng bộ tồn kho, aging report, và demand để đưa ra mức đặt hàng tối ưu chuẩn DOI. Tính toán chính xác số lượng PO bạn cần chỉ trong vài giây.</p>
+      <a href="index.html" class="btn btn-primary cta-btn">
+        <span data-i18n="btnOpenApp">Mở Material Smart →</span>
+      </a>
+    </div>
+  </section>
+
+  <main class="guide-container">
+    <!-- ─── Purchasing Pain Points ────────────────────────────── -->
+    <h2 class="section-title" data-i18n="probTitle">Giải Quyết Nỗi Đau Mua Hàng</h2>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🔴</div>
+        <h3 class="feature-title" data-i18n="prob1Title">Thiếu Hàng Cục Bộ</h3>
+        <p class="feature-text" data-i18n="prob1Desc">Không còn tình trạng "out-of-stock" do quên đặt hàng. Hệ thống cảnh báo tự động các mã sắp hết.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📦</div>
+        <h3 class="feature-title" data-i18n="prob2Title">Tồn Kho Ảo (Dead Stock)</h3>
+        <p class="feature-text" data-i18n="prob2Desc">Kiểm soát chặt Inventory Turnover (IT). Tránh tình trạng đặt batch quá lớn so với tốc độ bán.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚠️</div>
+        <h3 class="feature-title" data-i18n="prob3Title">Tính Toán Sai Lệch</h3>
+        <p class="feature-text" data-i18n="prob3Desc">Loại bỏ sai sót do kéo công thức VLOOKUP thủ công trên file Excel hàng vạn dòng.</p>
+      </div>
+    </div>
+
+    <!-- ─── 3 Simple Steps ────────────────────────────────────── -->
+    <h2 class="section-title" data-i18n="howTitle">Quy Trình 3 Bước Đơn Giản</h2>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="feature-icon">1</div>
+        <h3 class="feature-title" data-i18n="step1Title">1. Import 3 Báo Cáo</h3>
+        <p class="feature-text" data-i18n="step1Desc">Upload file Inventory 30 days, Aging Report và Bảng giá. Hệ thống tự nhận diện cột.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">2</div>
+        <h3 class="feature-title" data-i18n="step2Title">2. Review & Điều Chỉnh</h3>
+        <p class="feature-text" data-i18n="step2Desc">Xem gợi ý Batch đặt hàng. Điểu chỉnh lại số lượng nếu có thông tin đặc biệt.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">3</div>
+        <h3 class="feature-title" data-i18n="step3Title">3. Xuất PO Excel</h3>
+        <p class="feature-text" data-i18n="step3Desc">Chỉ 1 click để tải về file Excel chuẩn form PO, sẵn sàng gửi ngay cho Supplier.</p>
+      </div>
+    </div>
+
+    <!-- ─── Methodology ───────────────────────────────────────── -->
+    <h2 class="section-title" data-i18n="methTitle">Phương Pháp Tính Toán</h2>
+    <div class="methodology-box">
+      <div class="meth-item">
+        <div class="meth-label" data-i18n="methDOILabel">DOI (Days of Inventory)</div>
+        <p class="feature-text" data-i18n="methDOIDesc">Số ngày tồn kho mục tiêu. Hệ thống sẽ gợi ý Batch sao cho Tồn kho + Pending PO + Batch đảm bảo đủ bán trong số ngày này dựa trên Demand 30 ngày qua.</p>
+      </div>
+      <div class="meth-item">
+        <div class="meth-label" data-i18n="methITLabel">IT (Inventory Turnover)</div>
+        <p class="feature-text" data-i18n="methITDesc">Vòng quay hàng tồn kho. Hệ thống cảnh báo nếu bạn đặt Batch quá lớn khiến chỉ số IT vượt mức an toàn, gây ứ đọng vốn.</p>
+      </div>
+    </div>
+    
+    <div style="text-align: center; margin-top: 4rem;">
+      <a href="index.html" class="btn btn-primary cta-btn">
+        <span data-i18n="btnOpenApp">Mở Material Smart →</span>
+      </a>
+    </div>
+
+  </main>
+
+  <footer class="site-footer">
+    <p data-i18n="footerText">Phát triển bởi Boxme</p>
+  </footer>
+
+  <script src="js/guide-i18n.js"></script>
+</body>
+</html>
