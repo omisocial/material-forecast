@@ -8,20 +8,20 @@ const SEASONAL_PRESETS = {
   VN: {
     label: 'Vietnam 🇻🇳',
     flag: '🇻🇳',
-    months: [1.3, 1.2, 0.9, 0.9, 1.0, 1.0, 1.0, 1.0, 1.1, 1.1, 1.4, 1.3],
-    events: ['Tết Nguyên Đán', 'Sau Tết', '', '', '', '', '', 'Back to School', '', '10.10', '11.11 / Singles Day', '12.12 / Noel']
+    months: [1.35, 1.15, 1.0, 1.05, 1.05, 1.05, 1.0, 1.1, 1.15, 1.15, 1.35, 1.3],
+    events: ['Tết Nguyên Đán', 'Sau Tết', '', 'Lễ 30/4', 'Lễ 1/5', 'Mid-Year Sale', '', 'Back to School', '9.9 Sale', '10.10', '11.11 / Singles Day', '12.12 / Noel']
   },
   TH: {
     label: 'Thailand 🇹🇭',
     flag: '🇹🇭',
-    months: [1.0, 1.0, 1.0, 1.3, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.3, 1.2],
-    events: ['', '', '', 'Songkran', '', 'Mid-Year Sale', '', '', '', '', '11.11', 'Year-End Sale']
+    months: [1.05, 1.0, 1.0, 1.25, 1.0, 1.1, 1.1, 1.0, 1.15, 1.1, 1.3, 1.25],
+    events: ['New Year / CNY Prep', '', '', 'Songkran', '', 'Mid-Year Sale', 'Mid-Year Sale', '', '9.9 Sale', '10.10', '11.11 / Singles Day', '12.12 / Year-End']
   },
   PH: {
     label: 'Philippines 🇵🇭',
     flag: '🇵🇭',
-    months: [1.0, 1.0, 1.0, 1.0, 1.0, 1.1, 1.0, 1.0, 1.2, 1.1, 1.3, 1.4],
-    events: ['', '', '', '', '', 'Mid-Year Sale', '', '', 'BER Months', '', '11.11', 'Christmas / Pasko']
+    months: [1.05, 1.0, 1.05, 1.05, 1.05, 1.1, 1.0, 1.0, 1.15, 1.15, 1.35, 1.4],
+    events: ['After-Christmas', '', 'Summer / Holy Week', 'Summer / Holy Week', 'Summer', 'Mid-Year Sale', '', '', 'BER Months / 9.9', 'BER / 10.10', 'BER / 11.11', 'Christmas / Pasko']
   },
   DEFAULT: {
     label: 'Default',
@@ -149,8 +149,17 @@ function renderSeasonalModal() {
 
   // ── Warehouse → Country Mapping ──
   if (warehouses.length > 0) {
+    // Quick action buttons
     html += `<div class="seasonal-section">
       <h4 data-i18n="seasonalWHMapping">${t('seasonalWHMapping')}</h4>
+      <div class="seasonal-quick-actions">
+        <span class="seasonal-quick-label">${t('seasonalSetAll') || 'Set All'}:</span>
+        ${countries.filter(c => c !== 'DEFAULT').map(c => {
+          const p = SEASONAL_PRESETS[c];
+          return `<button class="btn-seasonal-quick" onclick="applyCountryToAll('${c}')">${p.flag} All ${c}</button>`;
+        }).join('')}
+        <button class="btn-seasonal-quick btn-seasonal-quick-default" onclick="applyCountryToAll('DEFAULT')">🌐 Default</button>
+      </div>
       <table class="seasonal-wh-table">
         <thead><tr>
           <th data-i18n="seasonalColWH">${t('seasonalColWH')}</th>
@@ -165,9 +174,12 @@ function renderSeasonalModal() {
       html += `<tr>
         <td><code>${wh}</code></td>
         <td>${detectedPreset.flag} ${detected}</td>
-        <td><select class="seasonal-country-select" data-wh="${wh}" onchange="onSeasonalCountryChange('${wh}',this.value)">
-          ${countries.map(c => `<option value="${c}" ${c === current ? 'selected' : ''}>${SEASONAL_PRESETS[c].flag} ${c}</option>`).join('')}
-        </select></td>
+        <td class="seasonal-country-cell">
+          <select class="seasonal-country-select" data-wh="${wh}" onchange="onSeasonalCountryChange('${wh}',this.value)">
+            ${countries.map(c => `<option value="${c}" ${c === current ? 'selected' : ''}>${SEASONAL_PRESETS[c].flag} ${c}</option>`).join('')}
+          </select>
+          <button class="btn-apply-all" onclick="onApplyAllCountry('${wh}')" title="${t('seasonalApplyAll') || 'Apply to all warehouses'}">↓ All</button>
+        </td>
       </tr>`;
     });
     html += `</tbody></table></div>`;
@@ -227,6 +239,21 @@ function onSeasonalMonthChange(monthStr) {
 function onSeasonalCountryChange(warehouse, country) {
   state.seasonalConfig.warehouseCountry[warehouse] = country;
   renderSeasonalModal();
+}
+
+// Apply a specific country to ALL warehouses (from quick-action buttons)
+function applyCountryToAll(country) {
+  const warehouses = Object.keys(state.seasonalConfig.warehouseCountry);
+  warehouses.forEach(wh => {
+    state.seasonalConfig.warehouseCountry[wh] = country;
+  });
+  renderSeasonalModal();
+}
+
+// Apply the current country of a warehouse to ALL other warehouses (from ↓ All button)
+function onApplyAllCountry(sourceWarehouse) {
+  const country = state.seasonalConfig.warehouseCountry[sourceWarehouse] || detectCountry(sourceWarehouse);
+  applyCountryToAll(country);
 }
 
 function onSeasonalRatioEdit(country, monthIdx, value) {

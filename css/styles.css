@@ -354,6 +354,19 @@ body { font-family:var(--font); background:var(--bg-muted); color:var(--text); m
 .seasonal-ratio-cell.ratio-down .seasonal-ratio-input { border-color:var(--danger); background:#fef2f2; color:#991b1b; font-weight:600; }
 .seasonal-event-cell { font-size:.6875rem; color:var(--text-muted); text-align:left !important; white-space:nowrap; max-width:180px; overflow:hidden; text-overflow:ellipsis; }
 
+/* Quick action buttons */
+.seasonal-quick-actions { display:flex; flex-wrap:wrap; align-items:center; gap:.375rem; margin-bottom:.75rem; }
+.seasonal-quick-label { font-size:.75rem; font-weight:500; color:var(--text-muted); }
+.btn-seasonal-quick { display:inline-flex; align-items:center; gap:.25rem; padding:.25rem .625rem; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--bg-card); font-size:.75rem; font-weight:500; cursor:pointer; transition:all .15s ease; }
+.btn-seasonal-quick:hover { background:var(--primary); color:#fff; border-color:var(--primary); }
+.btn-seasonal-quick-default { color:var(--text-muted); }
+.btn-seasonal-quick-default:hover { background:var(--text-muted); color:#fff; border-color:var(--text-muted); }
+
+/* Apply All per-row button */
+.seasonal-country-cell { display:flex; align-items:center; gap:.375rem; }
+.btn-apply-all { padding:.125rem .375rem; border:1px solid var(--border); border-radius:var(--radius-sm); background:transparent; font-size:.625rem; font-weight:600; color:var(--text-muted); cursor:pointer; transition:all .15s ease; white-space:nowrap; }
+.btn-apply-all:hover { background:var(--primary); color:#fff; border-color:var(--primary); }
+
 /* Ratio cell in main table */
 .ratio-cell { display:inline-block; padding:.125rem .375rem; border-radius:var(--radius-sm); font-size:.75rem; font-weight:500; min-width:40px; text-align:center; cursor:help; }
 .ratio-cell.ratio-up { background:#f0fdf4; color:#15803d; border:1px solid #bbf7d0; }

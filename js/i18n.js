@@ -172,6 +172,8 @@ const translations = {
     tipRatioLift:'Hệ số điều chỉnh nhu cầu theo mùa. Trên 1.0 = tăng cho mùa cao điểm, dưới 1.0 = giảm cho mùa thấp. Cấu hình qua nút 📊 Hệ số mùa vụ.',
     toastSeasonalApplied:'Đã áp dụng hệ số mùa vụ',
     toastSeasonalReset:'Đã reset hệ số mùa vụ về mặc định',
+    seasonalSetAll:'Chọn tất cả',
+    seasonalApplyAll:'Áp dụng cho tất cả kho',
   },
   en: {
     appTitle:'Material Smart',
@@ -339,6 +341,8 @@ const translations = {
     tipRatioLift:'Seasonal demand multiplier. Above 1.0 = increase for peak season, below 1.0 = decrease for low season. Configure via 📊 Seasonal Ratio button.',
     toastSeasonalApplied:'Seasonal ratios applied',
     toastSeasonalReset:'Seasonal ratios reset to defaults',
+    seasonalSetAll:'Set All',
+    seasonalApplyAll:'Apply to all warehouses',
   },
   th: {
     appTitle:'Material Smart',
@@ -491,6 +495,8 @@ const translations = {
     tipRatioLift:'ตัวคูณความต้องการตามฤดูกาล มากกว่า 1.0 = เพิ่มความต้องการช่วงพีค, น้อยกว่า 1.0 = ลดช่วงต่ำ กำหนดผ่านปุ่ม 📊 Seasonal Ratio',
     toastSeasonalApplied:'ใช้ตัวคูณตามฤดูกาลแล้ว',
     toastSeasonalReset:'รีเซ็ตตัวคูณตามฤดูกาลเป็นค่าเริ่มต้นแล้ว',
+    seasonalSetAll:'เลือกทั้งหมด',
+    seasonalApplyAll:'ใช้กับคลังทั้งหมด',
   }
 };
 
