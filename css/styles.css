@@ -77,6 +77,23 @@ body { font-family:var(--font); background:var(--bg-muted); color:var(--text); m
 .goal-btn.active { background:var(--primary); color:white; border-color:var(--primary); }
 .goal-btn:hover:not(.active) { background:var(--bg-muted); color:var(--text); }
 
+/* ── Config Inline (Primary) ─────────────────────────────────── */
+.config-inline { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:.5rem; }
+@media (max-width:639px) { .config-inline { grid-template-columns:1fr; } }
+
+/* ── Config Advanced (Collapsible) ───────────────────────────── */
+.btn-config-toggle { display:flex; align-items:center; gap:.375rem; padding:.375rem .5rem; border:none; background:transparent; color:var(--text-muted); font-size:.75rem; font-weight:600; cursor:pointer; transition:all .15s; border-radius:var(--radius-sm); margin-bottom:.25rem; }
+.btn-config-toggle:hover { background:var(--bg-muted); color:var(--text); }
+.btn-config-toggle .toggle-icon { font-size:.625rem; transition:transform .2s ease; display:inline-block; }
+.btn-config-toggle.expanded .toggle-icon { transform:rotate(90deg); }
+.config-advanced { max-height:0; overflow:hidden; transition:max-height .3s ease, opacity .2s ease; opacity:0; }
+.config-advanced.expanded { max-height:400px; opacity:1; }
+
+/* ── Column Toggle Button ────────────────────────────────────── */
+.btn-expand-cols { display:inline-flex; align-items:center; gap:.375rem; padding:.3125rem .625rem; border:1px solid var(--border); border-radius:var(--radius-sm); font-size:.75rem; font-weight:500; cursor:pointer; background:var(--bg-card); color:var(--text-muted); transition:all .15s; }
+.btn-expand-cols:hover { background:var(--bg-muted); color:var(--text); }
+.btn-expand-cols.active { background:var(--info-bg); color:var(--primary); border-color:var(--border-focus); }
+
 /* ── Upload Zone ─────────────────────────────────────────────── */
 .upload-zone { border:2px dashed var(--border); border-radius:var(--radius-lg); padding:1rem .75rem; text-align:center; cursor:pointer; transition:all .15s; background:var(--bg-muted); position:relative; }
 .upload-zone:hover,.upload-zone.drag { border-color:var(--border-focus); background:var(--info-bg); }
@@ -307,6 +324,40 @@ body { font-family:var(--font); background:var(--bg-muted); color:var(--text); m
 .factor-input { width:56px; padding:.1875rem .25rem; border:1px solid var(--border); border-radius:var(--radius-sm); font-size:.75rem; text-align:center; font-weight:500; background:var(--bg-card); }
 .factor-input:focus { border-color:var(--border-focus); outline:none; box-shadow:0 0 0 2px rgba(59,130,246,.15); }
 .factor-changed { border-color:var(--primary); background:var(--info-bg); font-weight:600; }
+
+/* ── Seasonal Ratio Lift ─────────────────────────────────────── */
+.btn-seasonal { gap:.375rem; }
+.modal-box-lg { max-width:860px; }
+.seasonal-controls { display:flex; flex-wrap:wrap; align-items:center; gap:1rem; margin-bottom:1rem; }
+.seasonal-toggle { display:flex; align-items:center; gap:.375rem; font-size:.8125rem; font-weight:500; cursor:pointer; }
+.seasonal-toggle input[type="checkbox"] { width:16px; height:16px; accent-color:var(--primary); }
+.seasonal-month-select { display:flex; align-items:center; gap:.375rem; }
+.seasonal-month-select label { font-size:.75rem; font-weight:500; color:var(--text-muted); }
+.seasonal-month-select select { padding:.25rem .5rem; border:1px solid var(--border); border-radius:var(--radius-sm); font-size:.8125rem; }
+.seasonal-section { margin-bottom:1rem; }
+.seasonal-section h4 { font-size:.8125rem; font-weight:600; margin-bottom:.5rem; color:var(--text); }
+.seasonal-wh-table { width:100%; border-collapse:collapse; font-size:.8125rem; }
+.seasonal-wh-table th { padding:.375rem .5rem; text-align:left; font-size:.6875rem; font-weight:600; color:var(--text-muted); border-bottom:1px solid var(--border); background:var(--bg-muted); }
+.seasonal-wh-table td { padding:.375rem .5rem; border-bottom:1px solid var(--border); }
+.seasonal-wh-table code { font-size:.75rem; background:var(--bg-muted); padding:.125rem .375rem; border-radius:3px; }
+.seasonal-country-select { padding:.25rem .375rem; border:1px solid var(--border); border-radius:var(--radius-sm); font-size:.75rem; }
+.seasonal-ratio-table-wrapper { overflow-x:auto; }
+.seasonal-ratio-table { width:100%; border-collapse:collapse; font-size:.8125rem; }
+.seasonal-ratio-table th { padding:.375rem .5rem; text-align:center; font-size:.6875rem; font-weight:600; color:var(--text-muted); border-bottom:1px solid var(--border); background:var(--bg-muted); white-space:nowrap; }
+.seasonal-ratio-table td { padding:.25rem .375rem; border-bottom:1px solid var(--border); text-align:center; }
+.seasonal-ratio-table .seasonal-month-label { text-align:left; font-weight:500; white-space:nowrap; }
+.seasonal-ratio-table .seasonal-current-month { background:var(--info-bg); }
+.seasonal-ratio-table .seasonal-current-month .seasonal-month-label { font-weight:700; color:var(--primary); }
+.seasonal-ratio-input { width:56px; padding:.1875rem .25rem; border:1px solid var(--border); border-radius:var(--radius-sm); font-size:.75rem; text-align:center; font-weight:500; background:var(--bg-card); }
+.seasonal-ratio-input:focus { border-color:var(--border-focus); outline:none; box-shadow:0 0 0 2px rgba(59,130,246,.15); }
+.seasonal-ratio-cell.ratio-up .seasonal-ratio-input { border-color:var(--success); background:#f0fdf4; color:#15803d; font-weight:600; }
+.seasonal-ratio-cell.ratio-down .seasonal-ratio-input { border-color:var(--danger); background:#fef2f2; color:#991b1b; font-weight:600; }
+.seasonal-event-cell { font-size:.6875rem; color:var(--text-muted); text-align:left !important; white-space:nowrap; max-width:180px; overflow:hidden; text-overflow:ellipsis; }
+
+/* Ratio cell in main table */
+.ratio-cell { display:inline-block; padding:.125rem .375rem; border-radius:var(--radius-sm); font-size:.75rem; font-weight:500; min-width:40px; text-align:center; cursor:help; }
+.ratio-cell.ratio-up { background:#f0fdf4; color:#15803d; border:1px solid #bbf7d0; }
+.ratio-cell.ratio-down { background:#fef2f2; color:#991b1b; border:1px solid #fecaca; }
 
 /* ══════════════════════════════════════════════════════════════════
    MOBILE RESPONSIVE — UX Overhaul (Fitts's / Hick's / Miller's)

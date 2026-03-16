@@ -1,6 +1,6 @@
 // ══════════════════════════════════════════════════════════════════
 // NVL Forecast Tool v2.0 — Table Renderer
-// Supports: Pending PO column, Demand Adj Factor column
+// Supports: Pending PO column, Demand Adj Factor, Seasonal Ratio Lift
 // ══════════════════════════════════════════════════════════════════
 
 const PAGE_SIZE = 50;
@@ -112,31 +112,49 @@ function renderTable() {
   const fmt = v => new Intl.NumberFormat(locale).format(v);
   const fmtCur = v => new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(v);
   const hasPending = (state.pendingPO || []).length > 0;
+  const expanded = state.showExpandedCols;
 
   // DOI helper
   const doiClass = v => v < 20 ? 'doi-red' : v < 30 ? 'doi-yellow' : v < 60 ? 'doi-green' : 'doi-blue';
 
   const itMax = state.itMax;
 
+  // Column toggle button
+  const toggleBtnId = 'btn-toggle-cols';
+  const toggleBtnLabel = expanded ? t('btnCollapseCols') : t('btnExpandCols');
+  const toggleBtnClass = expanded ? 'btn-expand-cols active' : 'btn-expand-cols';
+  const toggleBtnHTML = `<button id="${toggleBtnId}" class="${toggleBtnClass}" onclick="toggleExpandedCols()">${toggleBtnLabel}</button>`;
+
+  // Insert toggle button into toolbar
+  const toolbarExtra = document.getElementById('toolbar-extra');
+  if (toolbarExtra) { toolbarExtra.innerHTML = toggleBtnHTML; }
+
   let html = '<table class="table"><thead><tr>';
   // Tooltip mapping for columns
-  const colTips = { demand: 'tipDemand', qtyBatch: 'tipBatch', doiAfter: 'tipDOI', it: 'tipIT', thanhTien: 'tipThanhTien', pendingQty: 'tipPending', demandFactor: 'tipFactor' };
+  const colTips = { demand: 'tipDemand', ratioLift: 'tipRatioLift', qtyBatch: 'tipBatch', doiAfter: 'tipDOI', it: 'tipIT', thanhTien: 'tipThanhTien', pendingQty: 'tipPending', demandFactor: 'tipFactor' };
 
-  const cols = [
-    ['kho', t('thKho')], ['name', t('thName')], ['sku', 'SKU'],
-    ['demand', t('thDemand')], ['demandFactor', t('thFactor')],
+  // ── Primary columns (always visible) ──
+  const primaryCols = [
+    ['kho', t('thKho')], ['sku', 'SKU'], ['name', t('thName')],
+    ['doiAfter', t('thDOI')], ['qtyBatch', t('thBatch')],
+    ['thanhTien', t('thThanhTien')], ['insight', t('thInsight')]
+  ];
+
+  // ── Expanded columns (toggle) ──
+  const expandedCols = [
+    ['demand', t('thDemand')], ['ratioLift', t('thRatioLift')], ['demandFactor', t('thFactor')],
     ['stock', t('thInventory')],
   ];
-  // Conditionally add Pending column
   if (hasPending) {
-    cols.push(['pendingQty', t('thPending')]);
+    expandedCols.push(['pendingQty', t('thPending')]);
   }
-  cols.push(
-    ['qtyBatch', t('thBatch')], ['quyCach', t('thQuyCach')],
-    ['slNhap', t('thSLNhap')], ['donGia', t('thDonGia')],
-    ['thanhTien', t('thThanhTien')], ['doiAfter', t('thDOI')], ['it', t('thIT')],
-    ['insight', t('thInsight')]
+  expandedCols.push(
+    ['quyCach', t('thQuyCach')], ['slNhap', t('thSLNhap')],
+    ['donGia', t('thDonGia')], ['it', t('thIT')]
   );
+
+  // Merge columns based on toggle state
+  const cols = expanded ? [...primaryCols.slice(0, 3), ...expandedCols, ...primaryCols.slice(3)] : primaryCols;
 
   cols.forEach(([col, label]) => {
     const sorted = state.sortCol === col;
@@ -155,25 +173,32 @@ function renderTable() {
 
     html += `<tr class="${rowClass}">
       <td><span class="badge badge-blue">${r.kho}</span></td>
-      <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.name}">${r.name}</td>
       <td><code style="font-size:.75rem">${r.sku}</code></td>
-      <td style="text-align:right">${fmt(r.demand)}</td>
+      <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.name}">${r.name}</td>`;
+
+    // Expanded columns (between name and DOI)
+    if (expanded) {
+      html += `<td style="text-align:right">${fmt(r.demand)}</td>
+      <td><span class="ratio-cell ${(r.ratioLift || 1) > 1 ? 'ratio-up' : (r.ratioLift || 1) < 1 ? 'ratio-down' : ''}" title="${getCountryForWarehouse(r.kho)} — ${getEventForMonth(getCountryForWarehouse(r.kho), state.seasonalConfig ? state.seasonalConfig.currentMonth : new Date().getMonth()) || '—'}">${(r.ratioLift || 1.0).toFixed(2)}</span></td>
       <td><input type="number" class="factor-input ${factorChanged ? 'factor-changed' : ''}" value="${r.demandFactor || 1.0}" min="0" max="5" step="0.05" onchange="onFactorChange(${globalIdx},this.value)"></td>
       <td style="text-align:right">${fmt(r.stock)}</td>`;
 
-    // Pending column (only if pending data exists)
-    if (hasPending) {
-      const pq = r.pendingQty || 0;
-      html += `<td style="text-align:right;color:${pq > 0 ? 'var(--primary)' : 'var(--text-sm)'}">${pq > 0 ? fmt(pq) : '—'}</td>`;
-    }
+      // Pending column (only if pending data exists)
+      if (hasPending) {
+        const pq = r.pendingQty || 0;
+        html += `<td style="text-align:right;color:${pq > 0 ? 'var(--primary)' : 'var(--text-sm)'}">${pq > 0 ? fmt(pq) : '—'}</td>`;
+      }
 
-    html += `<td><input type="number" class="qty-input ${changedClass}" value="${r.qtyBatch}" min="0" onchange="onQtyChange(${globalIdx},this.value)"></td>
-      <td style="text-align:center">${r.quyCach}${r.donVi ? '/' + r.donVi : ''}</td>
+      html += `<td style="text-align:center">${r.quyCach}${r.donVi ? '/' + r.donVi : ''}</td>
       <td style="text-align:right">${fmt(r.slNhap)}</td>
       <td style="text-align:right">${r.hasPrice ? fmtCur(r.donGia) : '<span class="badge badge-yellow">' + t('noPriceBadge') + '</span>'}</td>
+      <td style="text-align:right;${r.it > itMax ? 'color:var(--danger);font-weight:600' : ''}">${r.it}</td>`;
+    }
+
+    // Remaining primary columns (DOI, Batch, Total, Insight)
+    html += `<td><span class="doi-cell ${dc}"><span class="doi-dot"></span>${r.doiAfter}</span></td>
+      <td><input type="number" class="qty-input ${changedClass}" value="${r.qtyBatch}" min="0" onchange="onQtyChange(${globalIdx},this.value)"></td>
       <td style="text-align:right;font-weight:600">${r.hasPrice ? fmtCur(r.thanhTien) : '—'}</td>
-      <td><span class="doi-cell ${dc}"><span class="doi-dot"></span>${r.doiAfter}</span></td>
-      <td style="text-align:right;${r.it > itMax ? 'color:var(--danger);font-weight:600' : ''}">${r.it}</td>
       <td>${renderInsight(r.insight)}</td>
     </tr>`;
   });

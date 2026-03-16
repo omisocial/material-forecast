@@ -1,6 +1,6 @@
 // ══════════════════════════════════════════════════════════════════
 // NVL Forecast Tool v2.0 — Calculation Engine
-// Supports: Pending PO, Demand Adjustment Factor
+// Supports: Pending PO, Demand Adjustment Factor, Seasonal Ratio Lift
 // ══════════════════════════════════════════════════════════════════
 
 /**
@@ -62,6 +62,7 @@ function runCalculation() {
   const safetyStock = state.safetyStock || 3;
   const budgetCap = state.budgetCap || 0;
   const goal = state.optimizationGoal || 'balance';
+  const seasonalMonth = state.seasonalConfig ? state.seasonalConfig.currentMonth : new Date().getMonth();
 
   // Build price map: SKU → { donGia, quyCach, donVi }
   const priceMap = {};
@@ -108,9 +109,12 @@ function runCalculation() {
     // Adjusted inventory includes pending
     const adjustedStock = stock + pendingQty;
 
+    // Seasonal Ratio Lift (per warehouse/country)
+    const ratioLift = getRatioLift(kho, seasonalMonth);
+
     // Demand factor (default 1.0)
     const demandFactor = 1.0;
-    const adjustedDemand = demand * demandFactor;
+    const adjustedDemand = demand * ratioLift * demandFactor;
     const dailyDemand = adjustedDemand / period;
 
     // ── Smart Parameters & ROP ──
@@ -167,6 +171,7 @@ function runCalculation() {
       kho, sku, name, demand, stock,
       pendingQty,
       adjustedStock,
+      ratioLift,             // Seasonal ratio lift
       demandFactor,
       adjustedDemand,
       suggestedBatch, qtyBatch: suggestedBatch,
@@ -200,8 +205,9 @@ function runCalculation() {
 
 function recalcRow(row) {
   const period = state.period, vat = state.vat;
+  const ratio = row.ratioLift || 1.0;
   const factor = row.demandFactor || 1.0;
-  const adjustedDemand = row.demand * factor;
+  const adjustedDemand = row.demand * ratio * factor;
   const dailyDemand = adjustedDemand / period;
   const adjustedStock = row.stock + (row.pendingQty || 0);
 
@@ -248,8 +254,9 @@ function applyDOI() {
   const ropDays = (state.leadTime || 7) + (state.safetyStock || 3);
 
   state.results.forEach(r => {
+    const ratio = r.ratioLift || 1.0;
     const factor = r.demandFactor || 1.0;
-    const adjustedDemand = r.demand * factor;
+    const adjustedDemand = r.demand * ratio * factor;
     const daily = adjustedDemand / state.period;
     const adjustedStock = r.stock + (r.pendingQty || 0);
 
@@ -323,8 +330,9 @@ function onFactorChange(idx, value) {
   const r = state.filteredResults[idx];
   if (!r) return;
   r.demandFactor = Math.max(0, parseFloat(value) || 1.0);
-  // Recalc suggested batch with new factor
-  const adjustedDemand = r.demand * r.demandFactor;
+  // Recalc suggested batch with new factor (includes ratioLift)
+  const ratio = r.ratioLift || 1.0;
+  const adjustedDemand = r.demand * ratio * r.demandFactor;
   const daily = adjustedDemand / state.period;
   const adjustedStock = r.stock + (r.pendingQty || 0);
   r.qtyBatch = Math.max(0, Math.round(daily * state.doiTarget - adjustedStock));

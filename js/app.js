@@ -11,9 +11,25 @@ const state = {
   doiTarget: 45, itMax: 6, vat: 8, period: 30,
   leadTime: 7, safetyStock: 3, budgetCap: 0, // NEW: Smart parameters
   optimizationGoal: 'balance',              // NEW: 'balance' or 'min_cost'
+  showExpandedCols: false,                  // Progressive disclosure
   currentPage: 1, sortCol: '', sortDir: 'asc',
   _parseData: {},
 };
+
+// ── Toggle: Advanced Config ─────────────────────────────────────
+function toggleAdvancedConfig() {
+  const btn = document.getElementById('btn-config-toggle');
+  const panel = document.getElementById('config-advanced');
+  const isOpen = panel.classList.toggle('expanded');
+  btn.classList.toggle('expanded', isOpen);
+}
+
+// ── Toggle: Expanded Columns ────────────────────────────────────
+function toggleExpandedCols() {
+  state.showExpandedCols = !state.showExpandedCols;
+  localStorage.setItem('ms_expandedCols', state.showExpandedCols ? '1' : '0');
+  renderTable(state);
+}
 
 // ── Toast notifications ─────────────────────────────────────────
 function toast(msg, type = 'info') {
@@ -37,6 +53,9 @@ function loadConfig() {
       });
     }
   });
+
+  // Load expanded columns preference
+  state.showExpandedCols = localStorage.getItem('ms_expandedCols') === '1';
 
   // Handle Goal Selector
   const goalBtns = document.querySelectorAll('.goal-btn');
@@ -108,6 +127,7 @@ function loadDemo() {
 function calculate() {
   if (!state.filesReady.inv || !state.filesReady.aging || !state.filesReady.price) return;
 
+  initSeasonalConfig();  // Initialize seasonal ratio lift
   runCalculation();
   buildFilterSelects();
   state.filteredResults = filterAndSort(state.results);

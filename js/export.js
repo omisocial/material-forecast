@@ -1,6 +1,6 @@
 // ══════════════════════════════════════════════════════════════════
 // NVL Forecast Tool v2.0 — Export Module
-// Supports: Pending PO qty, Demand Factor, Adjusted Demand
+// Supports: Pending PO qty, Demand Factor, Seasonal Ratio Lift, Adjusted Demand
 // ══════════════════════════════════════════════════════════════════
 
 function exportExcel() {
@@ -37,6 +37,7 @@ function exportExcel() {
         state.vat + '%', // VAT
         r.thanhTien, // Amount +VAT
         r.demand, // Demand
+        r.ratioLift || 1.0, // Ratio Lift (Seasonal)
         r.demandFactor || 1.0, // Demand Factor
         Math.round(r.adjustedDemand || r.demand), // Adjusted Demand
         r.it, // IT
