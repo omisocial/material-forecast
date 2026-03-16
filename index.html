@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="vi" id="html-root">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Material Smart — Forecast Tool</title>
+  <meta name="description" content="Smart material forecast tool with multi-language template import, auto column detection, and PO generation">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <!-- ─── Header ──────────────────────────────────────────────── -->
+  <header class="app-header no-print">
+    <div class="logo">
+      <svg viewBox="0 0 28 28" fill="none"><rect width="28" height="28" rx="6" fill="#1d4ed8"/><path d="M7 8h14v3H7zm0 5h14v3H7zm0 5h10v3H7z" fill="#fff" opacity=".9"/></svg>
+      <span class="logo-text" data-i18n="appTitle">Material Smart</span>
+    </div>
+    <div class="header-right">
+      <button class="btn-icon btn-help" onclick="showOnboarding(true)" aria-label="Guide" data-i18n="btnHelp">❓</button>
+      <div class="lang-switcher">
+        <button class="lang-btn active" id="lang-vi" onclick="setLang('vi')">VI</button>
+        <button class="lang-btn" id="lang-en" onclick="setLang('en')">EN</button>
+        <button class="lang-btn" id="lang-th" onclick="setLang('th')">TH</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- ─── Steps Indicator ─────────────────────────────────── -->
+    <div class="steps mb-4 no-print">
+      <div class="step active" id="step-1">
+        <span class="step-num">1</span>
+        <span data-i18n="step1">Import Files</span>
+      </div>
+      <span class="step-sep"></span>
+      <div class="step" id="step-2">
+        <span class="step-num">2</span>
+        <span data-i18n="step2">Xem kết quả</span>
+      </div>
+      <span class="step-sep"></span>
+      <div class="step" id="step-3">
+        <span class="step-num">3</span>
+        <span data-i18n="step3">Xuất PO</span>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <!-- PHASE 1: Import -->
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <div id="phase-import">
+      <!-- Config Card -->
+      <div class="card section">
+        <div class="card-header">
+          <svg class="icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg>
+          <h2 data-i18n="configTitle">Cấu hình</h2>
+        </div>
+        <div class="card-body">
+          <div class="grid-4">
+            <div>
+              <label class="label" data-i18n="doiTargetLabel">DOI Target (ngày)</label><span class="tip-icon" data-tip="tipDOITarget">ⓘ</span>
+              <input type="number" class="input" id="cfg-doiTarget" value="45" min="1">
+            </div>
+            <div>
+              <label class="label" data-i18n="itMaxLabel">IT tối đa (ngưỡng)</label><span class="tip-icon" data-tip="tipITMax">ⓘ</span>
+              <input type="number" class="input" id="cfg-itMax" value="6" min="1">
+            </div>
+            <div>
+              <label class="label" data-i18n="vatLabel">VAT mặc định (%)</label><span class="tip-icon" data-tip="tipVAT">ⓘ</span>
+              <input type="number" class="input" id="cfg-vat" value="8" min="0">
+            </div>
+            <div>
+              <label class="label" data-i18n="periodLabel">Kỳ báo cáo (ngày)</label><span class="tip-icon" data-tip="tipPeriod">ⓘ</span>
+              <input type="number" class="input" id="cfg-period" value="30" min="1">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Upload Cards -->
+      <div class="grid-3 section">
+        <!-- Inventory -->
+        <div class="card">
+          <div class="card-header">
+            <span style="font-size:1.125rem">📦</span>
+            <h2 data-i18n="invTitle">Inventory 30 days</h2>
+          </div>
+          <div class="card-body">
+            <div class="upload-zone" id="zone-inv"
+                 onclick="document.getElementById('file-inv').click()"
+                 ondragover="dragOver(event,'zone-inv')"
+                 ondragleave="dragLeave('zone-inv')"
+                 ondrop="drop(event,'inv')">
+              <div class="upload-icon">
+                <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 20V8m0 0l-5 5m5-5l5 5"/><path d="M28 20v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6"/></svg>
+              </div>
+              <div class="upload-label" id="inv-label" data-i18n="invTitle">Inventory 30 days</div>
+              <div class="upload-sub" data-i18n="invHint">Cột: SKU, Outbound, Close, Warehouse</div>
+              <span class="tip-icon tip-icon-upload" data-tip="tipInvFile">ⓘ</span>
+              <input type="file" id="file-inv" accept=".xlsx,.xls,.csv" onchange="handleFile(event,'inv')">
+            </div>
+            <div id="inv-status" class="mt-2"></div>
+            <button class="btn-template" onclick="generateTemplate('inv')" data-i18n="btnDownloadTemplate">📥 Tải file mẫu</button>
+          </div>
+        </div>
+
+        <!-- Aging -->
+        <div class="card">
+          <div class="card-header">
+            <span style="font-size:1.125rem">📊</span>
+            <h2 data-i18n="agingTitle">Aging Report</h2>
+          </div>
+          <div class="card-body">
+            <div class="upload-zone" id="zone-aging"
+                 onclick="document.getElementById('file-aging').click()"
+                 ondragover="dragOver(event,'zone-aging')"
+                 ondragleave="dragLeave('zone-aging')"
+                 ondrop="drop(event,'aging')">
+              <div class="upload-icon">
+                <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 20V8m0 0l-5 5m5-5l5 5"/><path d="M28 20v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6"/></svg>
+              </div>
+              <div class="upload-label" id="aging-label" data-i18n="agingTitle">Aging Report</div>
+              <div class="upload-sub" data-i18n="agingHint">Cột: Kho, Seller SKU, &lt;15 days…</div>
+              <span class="tip-icon tip-icon-upload" data-tip="tipAgingFile">ⓘ</span>
+              <input type="file" id="file-aging" accept=".xlsx,.xls,.csv" onchange="handleFile(event,'aging')">
+            </div>
+            <div id="aging-status" class="mt-2"></div>
+            <button class="btn-template" onclick="generateTemplate('aging')" data-i18n="btnDownloadTemplate">📥 Tải file mẫu</button>
+          </div>
+        </div>
+
+        <!-- Price -->
+        <div class="card">
+          <div class="card-header">
+            <span style="font-size:1.125rem">💰</span>
+            <h2 data-i18n="priceTitle">Bảng giá</h2>
+          </div>
+          <div class="card-body">
+            <div class="upload-zone" id="zone-price"
+                 onclick="document.getElementById('file-price').click()"
+                 ondragover="dragOver(event,'zone-price')"
+                 ondragleave="dragLeave('zone-price')"
+                 ondrop="drop(event,'price')">
+              <div class="upload-icon">
+                <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 20V8m0 0l-5 5m5-5l5 5"/><path d="M28 20v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6"/></svg>
+              </div>
+              <div class="upload-label" id="price-label" data-i18n="priceTitle">Bảng giá</div>
+              <div class="upload-sub" data-i18n="priceHint">Cột: SKU, Đơn giá (-VAT), Số lượng/pack</div>
+              <span class="tip-icon tip-icon-upload" data-tip="tipPriceFile">ⓘ</span>
+              <input type="file" id="file-price" accept=".xlsx,.xls,.csv" onchange="handleFile(event,'price')">
+            </div>
+            <div id="price-status" class="mt-2"></div>
+            <button class="btn-template" onclick="generateTemplate('price')" data-i18n="btnDownloadTemplate">📥 Tải file mẫu</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="card section">
+        <div class="card-body flex items-center justify-between">
+          <span id="import-hint" class="text-sm text-muted" data-i18n="importHint">Upload đủ 3 file để tính toán</span>
+          <div class="flex gap-2">
+            <button class="btn btn-outline" onclick="loadDemo()">
+              <span>📋</span> <span data-i18n="btnDemo">Tải dữ liệu demo</span>
+            </button>
+            <button class="btn btn-primary" id="btn-calculate" disabled onclick="calculate()">
+              <span>⚡</span> <span data-i18n="btnCalculate">Tính toán</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <!-- PHASE 2: Results -->
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <div id="phase-results" class="hidden">
+      <!-- Summary Stats -->
+      <div class="stats-grid section">
+        <div class="stat-card" id="stat-total"></div>
+        <div class="stat-card stat-danger" id="stat-danger"></div>
+        <div class="stat-card" id="stat-value"></div>
+        <div class="stat-card" id="stat-noprice"></div>
+      </div>
+
+      <!-- Alerts -->
+      <div id="alerts" class="section"></div>
+
+      <!-- Tabs -->
+      <div class="card section">
+        <div class="tabs no-print">
+          <div class="tab active" id="tab-table" onclick="toggleView('table')" data-i18n="tabTable">📋 Bảng PO</div>
+          <div class="tab" id="tab-chart" onclick="toggleView('chart')" data-i18n="tabChart">📊 DOI Chart</div>
+        </div>
+
+        <!-- Table View -->
+        <div id="view-table">
+          <div class="toolbar no-print">
+            <div class="toolbar-left">
+              <select class="select" id="filter-kho" style="width:140px" onchange="onFilterChange()"></select>
+              <select class="select" id="filter-doi" style="width:160px" onchange="onFilterChange()"></select>
+              <select class="select" id="filter-need" style="width:160px" onchange="onFilterChange()"></select>
+              <input type="text" class="input" id="filter-search" style="width:180px" placeholder="🔍 SKU / Tên SP..." oninput="onFilterChange()">
+            </div>
+            <div class="toolbar-right">
+              <button class="btn btn-ghost btn-sm" onclick="resetQty()"><span data-i18n="btnReset">↩ Reset Qty</span></button>
+              <button class="btn btn-outline btn-sm" onclick="applyDOI()"><span data-i18n="btnApplyDOI">⚡ Apply DOI Target</span></button>
+            </div>
+          </div>
+          <div class="table-wrapper" id="table-body"></div>
+          <div class="flex items-center justify-between" style="padding:.5rem 1rem">
+            <span class="text-xs text-muted" id="table-info"></span>
+            <div id="pagination" class="pagination"></div>
+          </div>
+        </div>
+
+        <!-- Chart View -->
+        <div id="view-chart" class="hidden">
+          <div class="toolbar no-print">
+            <div class="toolbar-left">
+              <span class="text-sm" data-i18n="chartShowTop">Hiện top</span>
+              <select class="select" id="chart-top" style="width:100px" onchange="renderChart()">
+                <option value="20">Top 20</option>
+                <option value="50">Top 50</option>
+                <option value="0">Tất cả</option>
+              </select>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="chart-container">
+              <canvas id="doi-chart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Export Actions -->
+      <div class="card section no-print">
+        <div class="card-body flex items-center justify-between flex-wrap gap-2">
+          <button class="btn btn-ghost" onclick="backToImport()">
+            <span data-i18n="btnBack">← Import file mới</span>
+          </button>
+          <div class="flex gap-2">
+            <button class="btn btn-outline" onclick="printReport()">
+              <span>🖨</span> <span data-i18n="btnPrint">In / Export PDF</span>
+            </button>
+            <button class="btn btn-success" onclick="exportExcel()">
+              <span>📥</span> <span data-i18n="btnExportExcel">Xuất Excel (.xlsx)</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div id="toast-container"></div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/column-detector.js"></script>
+  <script src="js/file-parser.js"></script>
+  <script src="js/calc-engine.js"></script>
+  <script src="js/table-renderer.js"></script>
+  <script src="js/chart-renderer.js"></script>
+  <script src="js/export.js"></script>
+  <script src="js/template-generator.js"></script>
+  <script src="js/tooltips.js"></script>
+  <script src="js/onboarding.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

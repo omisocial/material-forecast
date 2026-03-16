@@ -597,9 +597,12 @@ function setLang(lang) {
 }
 
 function buildFilterSelects() {
-  const khoOptions = `<option value="">${t('allKho')}</option>
-    <option>VSIP</option><option>Lê Minh Xuân</option>
-    <option>Bình Tân</option><option>Tân Tạo</option><option>Stock</option>`;
+  // Build warehouse list dynamically from data (no hardcoded names)
+  const khos = state.poLines && state.poLines.length > 0
+    ? [...new Set(state.poLines.map(l => l.kho))].sort()
+    : [];
+  const khoOptions = `<option value="">${t('allKho')}</option>` +
+    khos.map(k => `<option value="${k}">${k}</option>`).join('');
   const doiOptions = `<option value="">${t('allDOI')}</option>
     <option value="danger">${t('doiDanger')}</option>
     <option value="warn">${t('doiWarn')}</option>
@@ -640,7 +643,7 @@ const state = {
 // ══════════════════════════════════════════════════════════════════
 const fmt = {
   num: v => v == null ? '—' : Number(v).toLocaleString(t('locale')),
-  vnd: v => v == null || v === 0 ? '—' : Number(v).toLocaleString(t('locale'), {style:'currency', currency:'VND', maximumFractionDigits:0}),
+  currency: v => v == null || v === 0 ? '—' : Number(v).toLocaleString(t('locale'), { maximumFractionDigits: 0 }),
   doi: v => v == null ? '—' : Number(v).toFixed(2),
   it:  v => v == null ? '—' : Number(v).toFixed(4),
 };
@@ -885,6 +888,7 @@ function calculate() {
   state.page = 1;
 
   applyFilters();
+  buildFilterSelects(); // Rebuild filters after data is ready
   showPhaseResults();
   renderSummary();
   renderAlerts();
@@ -1011,7 +1015,7 @@ function renderTable() {
       <td style="text-align:center;color:var(--text-muted)">${l.quyCach} ${l.donVi}</td>
       <td style="text-align:right">${fmt.num(l.slNhap)}</td>
       <td style="text-align:right">${l.donGia ? fmt.num(l.donGia) : `<span class="badge badge-yellow">${t('noPriceBadge')}</span>`}</td>
-      <td style="text-align:right;font-weight:600">${l.thanhTienVAT ? fmt.vnd(l.thanhTienVAT) : '—'}</td>
+      <td style="text-align:right;font-weight:600">${l.thanhTienVAT ? fmt.currency(l.thanhTienVAT) : '—'}</td>
       <td id="doi-cell-${idx}">
         <span class="doi-cell ${dc}"><span class="doi-dot"></span>${fmt.doi(l.doi)}</span>
       </td>
@@ -1091,7 +1095,7 @@ function renderSummary() {
     </div>
     <div class="stat-card stat-success">
       <div class="stat-label">${t('statTotalValue')}</div>
-      <div class="stat-value" style="font-size:1rem">${fmt.vnd(totalValue)}</div>
+      <div class="stat-value" style="font-size:1rem">${fmt.currency(totalValue)}</div>
       <div class="stat-sub">${t('statAllKho')}</div>
     </div>
     <div class="stat-card ${itWarn > 0 ? 'stat-warn' : ''}">
@@ -1212,7 +1216,9 @@ function exportExcel() {
                 [t('exportTitle', { month: monthStr })], [], colHeaders];
 
   let po = 1;
-  for (const kho of ['VSIP','Lê Minh Xuân','Bình Tân','Tân Tạo','Stock']) {
+  // Group by warehouse dynamically from data (no hardcoded list)
+  const warehouses = [...new Set(state.poLines.map(l => l.kho))].sort();
+  for (const kho of warehouses) {
     for (const l of state.poLines.filter(x => x.kho === kho)) {
       rows.push([
         `PR${String(po++).padStart(3,'0')}`, l.kho, '', l.sku, l.name,
